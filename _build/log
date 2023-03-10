@@ -1,9 +1,9 @@
-# dune build main.exe
+# dune exec ./main.exe
 # OCAMLPARAM: unset
 # Shared cache: disabled
 # Workspace root: /Users/kojikimura/Desktop/CS3110-Final-Project
 # Auto-detected concurrency: 8
-$ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg/t517zbkj6fl_c08dfrh38pdh0000gn/T/dune_1c06e4_output
+$ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg/t517zbkj6fl_c08dfrh38pdh0000gn/T/dune_475813_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -11,7 +11,7 @@ $ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg
 #  ; merlin = true
 #  ; for_host = None
 #  ; fdo_target_exe = None
-#  ; build_dir = "default"
+#  ; build_dir = In_build_dir "default"
 #  ; toplevel_path =
 #      Some External "/Users/kojikimura/.opam/cs3110-2023sp/lib/toplevel"
 #  ; ocaml_bin = External "/Users/kojikimura/.opam/cs3110-2023sp/bin"

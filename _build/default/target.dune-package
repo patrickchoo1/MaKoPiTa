@@ -1,0 +1,30 @@
+(lang dune 3.7)
+(name target)
+(sections (lib .) (libexec .) (doc ../../doc/target))
+(files
+ (lib
+  (META
+   dune-package
+   opam
+   target.a
+   target.cma
+   target.cmi
+   target.cmt
+   target.cmx
+   target.cmxa
+   target.ml))
+ (libexec (target.cmxs))
+ (doc (README.md)))
+(library
+ (name target)
+ (kind normal)
+ (archives (byte target.cma) (native target.cmxa))
+ (plugins (byte target.cma) (native target.cmxs))
+ (native_archives target.a)
+ (main_module_name Target)
+ (modes byte native)
+ (modules
+  (singleton
+   (obj_name target)
+   (visibility public)
+   (source (path Target) (impl (path target.ml))))))
