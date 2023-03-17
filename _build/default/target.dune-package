@@ -6,13 +6,21 @@
   (META
    dune-package
    opam
+   state.ml
    target.a
    target.cma
    target.cmi
    target.cmt
    target.cmx
    target.cmxa
-   target.ml))
+   target.ml
+   target__.cmi
+   target__.cmt
+   target__.cmx
+   target__.ml
+   target__State.cmi
+   target__State.cmt
+   target__State.cmx))
  (libexec (target.cmxs))
  (doc (README.md)))
 (library
@@ -24,7 +32,21 @@
  (main_module_name Target)
  (modes byte native)
  (modules
-  (singleton
-   (obj_name target)
-   (visibility public)
-   (source (path Target) (impl (path target.ml))))))
+  (wrapped
+   (group
+    (alias
+     (obj_name target__)
+     (visibility public)
+     (kind alias)
+     (source (path Target__) (impl (path target__.ml-gen))))
+    (name Target)
+    (modules
+     (module
+      (obj_name target__State)
+      (visibility public)
+      (source (path State) (impl (path state.ml))))
+     (module
+      (obj_name target)
+      (visibility public)
+      (source (path Target) (impl (path target.ml))))))
+   (wrapped true))))

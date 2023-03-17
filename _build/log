@@ -1,9 +1,9 @@
-# dune exec ./main.exe
+# dune exec src/main.exe
 # OCAMLPARAM: unset
 # Shared cache: disabled
-# Workspace root: /Users/kojikimura/Desktop/CS3110-Final-Project
-# Auto-detected concurrency: 8
-$ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg/t517zbkj6fl_c08dfrh38pdh0000gn/T/dune_475813_output
+# Workspace root: /Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project
+# Auto-detected concurrency: 12
+$ /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/bp/by8j3l391bnch39f4wfwqh_h0000gn/T/dune_1b35a1_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -13,42 +13,46 @@ $ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg
 #  ; fdo_target_exe = None
 #  ; build_dir = In_build_dir "default"
 #  ; toplevel_path =
-#      Some External "/Users/kojikimura/.opam/cs3110-2023sp/lib/toplevel"
-#  ; ocaml_bin = External "/Users/kojikimura/.opam/cs3110-2023sp/bin"
-#  ; ocaml = Ok External "/Users/kojikimura/.opam/cs3110-2023sp/bin/ocaml"
-#  ; ocamlc = External "/Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt"
+#      Some External "/Users/takumaosaka/.opam/cs3110-2023sp/lib/toplevel"
+#  ; ocaml_bin = External "/Users/takumaosaka/.opam/cs3110-2023sp/bin"
+#  ; ocaml = Ok External "/Users/takumaosaka/.opam/cs3110-2023sp/bin/ocaml"
+#  ; ocamlc = External "/Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlc.opt"
 #  ; ocamlopt =
-#      Ok External "/Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlopt.opt"
+#      Ok External "/Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlopt.opt"
 #  ; ocamldep =
-#      Ok External "/Users/kojikimura/.opam/cs3110-2023sp/bin/ocamldep.opt"
+#      Ok External "/Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamldep.opt"
 #  ; ocamlmklib =
-#      Ok External "/Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlmklib.opt"
+#      Ok External "/Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlmklib.opt"
 #  ; env =
 #      map
-#        { "DUNE_OCAML_HARDCODED" : "/Users/kojikimura/.opam/cs3110-2023sp/lib"
+#        { "DUNE_OCAML_HARDCODED" :
+#            "/Users/takumaosaka/.opam/cs3110-2023sp/lib"
 #        ; "DUNE_OCAML_STDLIB" :
-#            "/Users/kojikimura/.opam/cs3110-2023sp/lib/ocaml"
-#        ; "DUNE_SOURCEROOT" : "/Users/kojikimura/Desktop/CS3110-Final-Project"
+#            "/Users/takumaosaka/.opam/cs3110-2023sp/lib/ocaml"
+#        ; "DUNE_SOURCEROOT" :
+#            "/Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project"
 #        ; "INSIDE_DUNE" :
-#            "/Users/kojikimura/Desktop/CS3110-Final-Project/_build/default"
+#            "/Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project/_build/default"
+#        ; "MANPATH" :
+#            "/Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project/_build/install/default/bin"
 #        ; "OCAMLFIND_IGNORE_DUPS_IN" :
-#            "/Users/kojikimura/Desktop/CS3110-Final-Project/_build/install/default/lib"
+#            "/Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project/_build/install/default/lib"
 #        ; "OCAMLPATH" :
-#            "/Users/kojikimura/Desktop/CS3110-Final-Project/_build/install/default/lib"
+#            "/Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project/_build/install/default/lib"
 #        ; "OCAMLTOP_INCLUDE_PATH" :
-#            "/Users/kojikimura/Desktop/CS3110-Final-Project/_build/install/default/lib/toplevel"
+#            "/Users/takumaosaka/CS3110/FinalProject/CS3110-Final-Project/_build/install/default/lib/toplevel"
 #        ; "OCAML_COLOR" : "always"
 #        ; "OPAMCOLOR" : "always"
 #        }
-#  ; findlib_paths = [ External "/Users/kojikimura/.opam/cs3110-2023sp/lib" ]
+#  ; findlib_paths = [ External "/Users/takumaosaka/.opam/cs3110-2023sp/lib" ]
 #  ; arch_sixtyfour = true
 #  ; natdynlink_supported = true
 #  ; supports_shared_libraries = true
 #  ; ocaml_config =
 #      { version = "4.14.0"
 #      ; standard_library_default =
-#          "/Users/kojikimura/.opam/cs3110-2023sp/lib/ocaml"
-#      ; standard_library = "/Users/kojikimura/.opam/cs3110-2023sp/lib/ocaml"
+#          "/Users/takumaosaka/.opam/cs3110-2023sp/lib/ocaml"
+#      ; standard_library = "/Users/takumaosaka/.opam/cs3110-2023sp/lib/ocaml"
 #      ; standard_runtime = "the_standard_runtime_variable_was_deleted"
 #      ; ccomp_type = "cc"
 #      ; c_compiler = "cc"
@@ -78,7 +82,7 @@ $ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg
 #      ; native_c_libraries = [ "-lm" ]
 #      ; native_pack_linker = [ "ld"; "-r"; "-o" ]
 #      ; cc_profile = []
-#      ; architecture = "arm64"
+#      ; architecture = "amd64"
 #      ; model = "default"
 #      ; int_size = 63
 #      ; word_size = 64
@@ -94,8 +98,8 @@ $ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg
 #      ; os_type = "Unix"
 #      ; default_executable_name = "a.out"
 #      ; systhread_supported = true
-#      ; host = "aarch64-apple-darwin21.1.0"
-#      ; target = "aarch64-apple-darwin21.1.0"
+#      ; host = "x86_64-apple-darwin20.3.0"
+#      ; target = "x86_64-apple-darwin20.3.0"
 #      ; profiling = false
 #      ; flambda = false
 #      ; spacetime = false
@@ -115,3 +119,10 @@ $ /Users/kojikimura/.opam/cs3110-2023sp/bin/ocamlc.opt -config > /var/folders/wg
 #      ; windows_unicode = false
 #      }
 #  }
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamldep.opt -modules -impl utility/target.ml) > _build/default/utility/.target.objs/target.impl.d
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I utility/.target.objs/byte -no-alias-deps -opaque -open Target__ -o utility/.target.objs/byte/target.cmo -c -impl utility/target.ml)
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I src/.main.eobjs/byte -I /Users/takumaosaka/.opam/cs3110-2023sp/lib/graphics -I utility/.target.objs/byte -no-alias-deps -opaque -o src/.main.eobjs/byte/dune__exe__Main.cmi -c -intf src/main.mli)
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I utility/.target.objs/byte -I utility/.target.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Target__ -o utility/.target.objs/native/target.cmx -c -impl utility/target.ml)
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I src/.main.eobjs/byte -I src/.main.eobjs/native -I /Users/takumaosaka/.opam/cs3110-2023sp/lib/graphics -I utility/.target.objs/byte -I utility/.target.objs/native -intf-suffix .ml -no-alias-deps -opaque -o src/.main.eobjs/native/dune__exe__Main.cmx -c -impl src/main.ml)
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -a -o utility/target.cmxa utility/.target.objs/native/target__.cmx utility/.target.objs/native/target.cmx utility/.target.objs/native/target__State.cmx)
+$ (cd _build/default && /Users/takumaosaka/.opam/cs3110-2023sp/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -o src/main.exe /Users/takumaosaka/.opam/cs3110-2023sp/lib/graphics/graphics.cmxa -I /Users/takumaosaka/.opam/cs3110-2023sp/lib/graphics utility/target.cmxa src/.main.eobjs/native/dune__exe__Main.cmx)

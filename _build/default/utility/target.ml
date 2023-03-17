@@ -1,15 +1,15 @@
 module type Target = sig
   type position = int * int
-  type hit_box_type = Radius of int
+  type hit_box = Radius of int
 
   val center : position
-  val hit_box : hit_box_type
+  val hit_box : hit_box
   val is_hit : position -> bool
 end
 
 module Circle : Target = struct
   type position = int * int
-  type hit_box_type = Radius of int
+  type hit_box = Radius of int
 
   let center = (200, 200)
   let hit_box = Radius 100

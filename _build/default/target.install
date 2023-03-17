@@ -2,6 +2,7 @@ lib: [
   "_build/install/default/lib/target/META"
   "_build/install/default/lib/target/dune-package"
   "_build/install/default/lib/target/opam"
+  "_build/install/default/lib/target/state.ml"
   "_build/install/default/lib/target/target.a"
   "_build/install/default/lib/target/target.cma"
   "_build/install/default/lib/target/target.cmi"
@@ -9,6 +10,13 @@ lib: [
   "_build/install/default/lib/target/target.cmx"
   "_build/install/default/lib/target/target.cmxa"
   "_build/install/default/lib/target/target.ml"
+  "_build/install/default/lib/target/target__.cmi"
+  "_build/install/default/lib/target/target__.cmt"
+  "_build/install/default/lib/target/target__.cmx"
+  "_build/install/default/lib/target/target__.ml"
+  "_build/install/default/lib/target/target__State.cmi"
+  "_build/install/default/lib/target/target__State.cmt"
+  "_build/install/default/lib/target/target__State.cmx"
 ]
 libexec: [
   "_build/install/default/lib/target/target.cmxs"
