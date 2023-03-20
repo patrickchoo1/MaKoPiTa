@@ -1,1 +1,0 @@
-../../../../../../default/src/raylib-ocaml/src/c/types/raygui_fixed_types.ml

@@ -1,1 +1,0 @@
-../../../../default/src/raylib-ocaml/src/raylib/rlgl.mli

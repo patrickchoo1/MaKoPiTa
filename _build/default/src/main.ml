@@ -1,5 +1,5 @@
 open Graphics
-open Target.Circle;;
+open Target;;
 
 open_graph " 640x480";;
 

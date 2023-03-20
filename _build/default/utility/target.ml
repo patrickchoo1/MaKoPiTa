@@ -1,23 +1,17 @@
-module type Target = sig
-  type position = int * int
-  type hit_box = Radius of int
+(** Implementation of target.mli *)
 
-  val center : position
-  val hit_box : hit_box
-  val is_hit : position -> bool
-end
+(** open Yojson.Basic.Util *)
 
-module Circle : Target = struct
-  type position = int * int
-  type hit_box = Radius of int
+type position = int * int
+type target = { centre : position; box : int; hit : bool }
 
-  let center = (200, 200)
-  let hit_box = Radius 100
+(** let load t =
+  {
+    centre = t |> member "center";
+    box = t |> member "hit_box";
+    hit = t |> member "is_hit";
+  } *)
 
-  let is_hit pos =
-    let x1, y1 = pos in
-    let x2, y2 = center in
-    let (Radius radius) = hit_box in
-    sqrt (float_of_int (((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2))))
-    <= float_of_int radius
-end
+let center t = t.centre
+let hit_box t = t.box
+let is_hit t = t.hit

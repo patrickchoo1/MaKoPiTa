@@ -7,19 +7,23 @@
    dune-package
    opam
    state.ml
+   state.mli
    target.a
    target.cma
    target.cmi
    target.cmt
+   target.cmti
    target.cmx
    target.cmxa
    target.ml
+   target.mli
    target__.cmi
    target__.cmt
    target__.cmx
    target__.ml
    target__State.cmi
    target__State.cmt
+   target__State.cmti
    target__State.cmx))
  (libexec (target.cmxs))
  (doc (README.md)))
@@ -44,9 +48,9 @@
      (module
       (obj_name target__State)
       (visibility public)
-      (source (path State) (impl (path state.ml))))
+      (source (path State) (intf (path state.mli)) (impl (path state.ml))))
      (module
       (obj_name target)
       (visibility public)
-      (source (path Target) (impl (path target.ml))))))
+      (source (path Target) (intf (path target.mli)) (impl (path target.ml))))))
    (wrapped true))))
