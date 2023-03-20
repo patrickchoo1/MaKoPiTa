@@ -4,6 +4,7 @@ let setup () =
   Raylib.init_window 800 450 "Rhythm Game";
   Raylib.set_target_fps 60
 
+<<<<<<< HEAD
 let rec loop () =
   if Raylib.window_should_close () then Raylib.close_window ()
   else
@@ -23,3 +24,14 @@ let rec loop () =
     loop ()
 
 let () = setup () |> loop
+=======
+try
+  while true do
+    let st = wait_next_event [ Mouse_motion ] in
+    let x, y = center in
+    let (Radius r) = hit_box in
+    set_color (if is_hit (st.mouse_x, st.mouse_y) then red else yellow);
+    fill_circle x y r
+  done
+with Exit -> ()
+>>>>>>> b68b8d5972eb865d32c45e2f5dda222105f85a54

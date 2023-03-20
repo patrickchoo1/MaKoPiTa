@@ -1,15 +1,23 @@
 module type Target = sig
   type position = int * int
+<<<<<<< HEAD
   type hit_box_type = Radius of float
+=======
+  type hit_box = Radius of int
+>>>>>>> b68b8d5972eb865d32c45e2f5dda222105f85a54
 
   val center : position
-  val hit_box : hit_box_type
+  val hit_box : hit_box
   val is_hit : position -> bool
 end
 
 module Circle : Target = struct
   type position = int * int
+<<<<<<< HEAD
   type hit_box_type = Radius of float
+=======
+  type hit_box = Radius of int
+>>>>>>> b68b8d5972eb865d32c45e2f5dda222105f85a54
 
   let center = (200, 200)
   let hit_box = Radius 100.0
