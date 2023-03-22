@@ -1,0 +1,12 @@
+This project uses Raylib as the primary graphics and audio library.
+
+## MacOS Installation Instructions
+
+* Install homebrew (If you have already skip) *
+  - `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+
+* Install Raylib *
+  - `brew install raylib`
+
+* Install Raylib for OCaml *
+  - `opam install raylib`
