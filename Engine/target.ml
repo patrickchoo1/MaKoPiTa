@@ -41,5 +41,5 @@ let rand_target () =
   {
     id = -1;
     shape = Circle (Random.float 50. +. 100.0);
-    center = (Random.int 1000, Random.int 1000);
+    center = (Random.int 600, Random.int 600);
   }

@@ -5,7 +5,7 @@ let random_level = rand_state ()
 (* let test_level = init_state (Yojson.Basic.from_file "data/test.json") *)
 
 let setup level =
-  Raylib.init_window 1000 1000 "Rhythm Game";
+  Raylib.init_window 600 600 "Rhythm Game";
   Raylib.set_target_fps 60;
   level
 
