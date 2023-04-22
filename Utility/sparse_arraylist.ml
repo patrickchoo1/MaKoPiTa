@@ -24,6 +24,7 @@ let rep_ok arr =
       | false -> false
   in
   aux (arr.size - 1)
+  [@@coverage off]
 
 let make n =
   {

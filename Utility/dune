@@ -1,4 +1,6 @@
 (library
  (name utility)
  (public_name Utility)
- (libraries))
+ (libraries)
+ (instrumentation
+  (backend bisect_ppx)))

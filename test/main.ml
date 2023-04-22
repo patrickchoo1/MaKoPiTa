@@ -60,7 +60,8 @@ let set1 =
   Sparse_arraylist.make 5 |> Sparse_arraylist.insert 1
   |> Sparse_arraylist.insert 2 |> Sparse_arraylist.insert 3
   |> Sparse_arraylist.insert 4 |> Sparse_arraylist.insert 0
-  |> Sparse_arraylist.insert 5 |> Sparse_arraylist.insert 7
+  |> Sparse_arraylist.insert 5 |> Sparse_arraylist.insert 2
+  |> Sparse_arraylist.insert 7
   |> Sparse_arraylist.insert 10000
   |> Sparse_arraylist.insert 10
 
@@ -72,6 +73,14 @@ let set2 =
   |> Sparse_arraylist.insert 10000
   |> Sparse_arraylist.insert 10 |> Sparse_arraylist.delete 3
   |> Sparse_arraylist.delete 5 |> Sparse_arraylist.delete 11
+
+let set3 =
+  Sparse_arraylist.make 5 |> Sparse_arraylist.insert 1
+  |> Sparse_arraylist.insert 2 |> Sparse_arraylist.insert 3
+  |> Sparse_arraylist.insert 4 |> Sparse_arraylist.insert 0
+  |> Sparse_arraylist.insert 5 |> Sparse_arraylist.insert 7
+  |> Sparse_arraylist.insert 10000
+  |> Sparse_arraylist.insert 10 |> Sparse_arraylist.clear
 
 let sparse_arraylist_tests =
   [
@@ -88,6 +97,7 @@ let sparse_arraylist_tests =
     sparse_search_test "Search for element removed from set2" set2 3 ~-1;
     sparse_search_test "Search for element removed from set2" set2 5 ~-1;
     sparse_set_to_list_test "List of set1" set2 [ 0; 1; 2; 4; 7; 10; 10000 ];
+    sparse_set_to_list_test "Cleared list of set3" set3 [];
   ]
 
 let suite = "search test suite" >::: List.flatten [ sparse_arraylist_tests ]
