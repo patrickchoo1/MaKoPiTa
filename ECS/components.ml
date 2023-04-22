@@ -1,6 +1,8 @@
 open Component
 
-module type C = sig end
+module type C = sig
+  val reset : unit -> unit
+end
 
 module Components : C = struct
   let components : (module Component.Sig) array =

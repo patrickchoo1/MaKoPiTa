@@ -13,8 +13,8 @@ module Entities : E = struct
   let curr_id = ref ~-1
 
   (* Maybe use sparse array using init after adding all the entities in *)
-  let active : id Arraylist.t = Arraylist.make ()
-  let is_active (id : id) : bool = raise (Failure "Unimplemented")
+  let active : Sparse_arraylist.t = Sparse_arraylist.make 100
+  let is_active (id : id) : bool = Sparse_arraylist.search id active != -1
 
   let id_of_name (name : name) : id =
     match Hashtbl.find_opt entities name with
@@ -22,6 +22,6 @@ module Entities : E = struct
     | None ->
         curr_id := !curr_id + 1;
         Hashtbl.replace entities name !curr_id;
-        Arraylist.add active !curr_id;
+        let _ = Sparse_arraylist.insert !curr_id active in
         !curr_id
 end

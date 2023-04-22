@@ -1,6 +1,8 @@
 open System
 
-module type S = sig end
+module type S = sig
+  val update_all : unit -> unit
+end
 
 module Systems : S = struct
   let systems : (module System.Sig) array = [||]

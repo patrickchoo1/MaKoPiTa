@@ -5,7 +5,7 @@ module Component = struct
     type t
 
     val table : (id, t) Hashtbl.t
-    val set : id -> t -> unit
+    val set : id -> t -> id
     val get : id -> t
   end
 
@@ -14,7 +14,10 @@ module Component = struct
       type t = s
 
       let table : (id, s) Hashtbl.t = Hashtbl.create 0
-      let set id value = Hashtbl.replace table id value
+
+      let set id value =
+        Hashtbl.replace table id value;
+        id
 
       let get id =
         match Hashtbl.find_opt table id with
