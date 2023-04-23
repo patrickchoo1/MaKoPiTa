@@ -27,10 +27,7 @@ module PolygonCollisionDetection = struct
   let components : (module Component.Sig) list =
     [ (module Position); (module PolygonCollider) ]
 
-  let m_diff (shape1 : int * int list) = 
-      
-    ()
-
+  let m_diff (shape1 : int * int list) = ()
   let on_update ids = ()
 
   include (val System.create on_update components : System.Sig)
