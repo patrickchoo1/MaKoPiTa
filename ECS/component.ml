@@ -6,7 +6,7 @@ module Component = struct
 
     val table : (id, t) Hashtbl.t
     val set : id -> t -> id
-    val get : id -> t
+    val get_opt : id -> t option
   end
 
   let create (type s) () =
@@ -19,10 +19,7 @@ module Component = struct
         Hashtbl.replace table id value;
         id
 
-      let get id =
-        match Hashtbl.find_opt table id with
-        | Some a -> a
-        | None -> raise (Failure (string_of_int id ^ " Not Found"))
+      let get_opt id = Hashtbl.find_opt table id
     end in
     (module C : Sig with type t = s)
 
@@ -35,14 +32,14 @@ end
  * Add components below
  **********************************************************************)
 
-module Example1 = struct
-  type s = { health : int }
+module Position = struct
+  type s = { x : int; y : int }
 
   include (val Component.create () : Component.Sig with type t = s)
 end
 
-module Example2 = struct
-  type s = { test : int }
+module PolygonCollider = struct
+  type s = { verticies : (int * int) list }
 
   include (val Component.create () : Component.Sig with type t = s)
 end

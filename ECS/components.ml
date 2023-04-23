@@ -6,7 +6,7 @@ end
 
 module Components : C = struct
   let components : (module Component.Sig) array =
-    [| (module Example1); (module Example2) |]
+    [| (module Position); (module PolygonCollider) |]
 
   let reset () = Array.iter Component.reset components
 end
