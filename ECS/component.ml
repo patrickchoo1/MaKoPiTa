@@ -33,13 +33,21 @@ end
  **********************************************************************)
 
 module Position = struct
-  type s = { x : int; y : int }
+  type s = { x : float; y : float }
 
   include (val Component.create () : Component.Sig with type t = s)
 end
 
-module PolygonCollider = struct
-  type s = { verticies : (int * int) list }
+module Vector = struct
+  type s = { vec : float * float * float }
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Shape = struct
+  type s =
+    | Circle of { radius : float; center : Vector.s }
+    | Polygon of { verticies : Vector.s list }
 
   include (val Component.create () : Component.Sig with type t = s)
 end
