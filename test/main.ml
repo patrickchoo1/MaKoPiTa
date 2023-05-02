@@ -84,19 +84,19 @@ let set3 =
 
 let sparse_arraylist_tests =
   [
-    sparse_search_test "Search for element in set1" set1 1 0;
-    sparse_search_test "Search for element in set1" set1 2 1;
-    sparse_search_test "Search for element in set1" set1 3 2;
-    sparse_search_test "Search for element in set1" set1 4 3;
-    sparse_search_test "Search for element in set1" set1 0 4;
-    sparse_search_test "Search for element in set1" set1 5 5;
-    sparse_search_test "Search for element in set1" set1 7 6;
+    sparse_search_test "Search for 1 in set1" set1 1 0;
+    sparse_search_test "Search for 2 in set1" set1 2 1;
+    sparse_search_test "Search for 3 in set1" set1 3 2;
+    sparse_search_test "Search for 4 in set1" set1 4 3;
+    sparse_search_test "Search for 0 in set1" set1 0 4;
+    sparse_search_test "Search for 5 in set1" set1 5 5;
+    sparse_search_test "Search for 7 in set1" set1 7 6;
     sparse_search_test "Search for element not in set1" set1 6 ~-1;
     sparse_set_to_list_test "List of set1" set1
       [ 0; 1; 2; 3; 4; 5; 7; 10; 10000 ];
-    sparse_search_test "Search for element removed from set2" set2 3 ~-1;
-    sparse_search_test "Search for element removed from set2" set2 5 ~-1;
-    sparse_set_to_list_test "List of set1" set2 [ 0; 1; 2; 4; 7; 10; 10000 ];
+    sparse_search_test "Search for 3 removed from set2" set2 3 ~-1;
+    sparse_search_test "Search for 5 removed from set2" set2 5 ~-1;
+    sparse_set_to_list_test "List of set2" set2 [ 0; 1; 2; 4; 7; 10; 10000 ];
     sparse_set_to_list_test "Cleared list of set3" set3 [];
   ]
 

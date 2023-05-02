@@ -23,13 +23,9 @@ end
  * Add systems below
  **********************************************************************)
 
-module PolygonCollisionDetection = struct
+module CollisionDetection = struct
   let components : (module Component.Sig) list =
-    [ (module Position); (module PolygonCollider) ]
-
-  let m_diff (shape1 : int * int list) = 
-      
-    ()
+    [ (module Position); (module Shape) ]
 
   let on_update ids = ()
 

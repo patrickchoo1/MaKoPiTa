@@ -38,8 +38,10 @@ module Position = struct
   include (val Component.create () : Component.Sig with type t = s)
 end
 
-module PolygonCollider = struct
-  type s = { verticies : (int * int) list }
+module Shape = struct
+  type vec2 = float * float
+  type radius = float
+  type s = Polygon of vec2 list | Circle of radius
 
   include (val Component.create () : Component.Sig with type t = s)
 end

@@ -1,4 +1,0 @@
-(library
- (name ecs)
- (public_name ECS)
- (libraries Utility))
