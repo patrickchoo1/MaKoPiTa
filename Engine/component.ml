@@ -1,3 +1,5 @@
+open Raylib
+
 type id = int
 
 module Component = struct
@@ -55,6 +57,12 @@ end
 
 module In_n_Out = struct
   type s = Out_to_In | In | In_to_Out
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Colors = struct
+  type s = Color.t
 
   include (val Component.create () : Component.Sig with type t = s)
 end

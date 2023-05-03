@@ -154,14 +154,14 @@ module ShapeCollisionDetection = struct
     | In, false, true -> In_n_Out.set id In_to_Out (* Increase score here *)
     | _ -> In_n_Out.set id Out_to_In
 
-  let on_update ids =
+  let on_update (ids : id list) =
     let mouse_pos : Vector.s =
       {
         vec = (float_of_int (get_mouse_x ()), float_of_int (get_mouse_y ()), 0.);
       }
     in
     let mouse : Shape.s = Point { center = mouse_pos } in
-    let rec on_update_aux ids =
+    let rec on_update_aux (ids : id list) =
       match ids with
       | id :: t -> (
           match Shape.get_opt id with
@@ -179,8 +179,42 @@ module ShapeCollisionDetection = struct
 end
 
 module RenderShape = struct
-  let components : (module Component.Sig) list = [ (module Shape) ]
-  let on_update ids = ()
+  let components : (module Component.Sig) list =
+    [ (module Shape); (module Colors) ]
+
+  let draw_shape (s : Shape.s) (color : Colors.s) =
+    match s with
+    | Point pt -> (
+        match pt.center.vec with
+        | x, y, _ -> draw_pixel (int_of_float x) (int_of_float y) color)
+    | Circle cir -> (
+        match (cir.radius, cir.center.vec) with
+        | r, (x, y, _) -> draw_circle (int_of_float x) (int_of_float y) r color)
+    | Polygon poly ->
+        let rec draw_polygon (verts : Vector.s list) =
+          match verts with
+          | v1 :: v2 :: t -> (
+              match (v1.vec, v2.vec) with
+              | (x1, y1, _), (x2, y2, _) ->
+                  draw_line (int_of_float x1) (int_of_float y1)
+                    (int_of_float x2) (int_of_float y2) color;
+                  draw_polygon (v2 :: t))
+          | _ -> ()
+        in
+        draw_polygon poly.verticies
+
+  let on_update (ids : id list) =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match (Shape.get_opt id, Colors.get_opt id) with
+          | Some s, Some c ->
+              draw_shape s c;
+              on_update_aux t
+          | _ -> failwith "No shape component")
+      | [] -> ()
+    in
+    on_update_aux ids
 
   include (val System.create on_update components : System.Sig)
 end
