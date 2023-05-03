@@ -46,8 +46,15 @@ end
 
 module Shape = struct
   type s =
+    | Point of { center : Vector.s }
     | Circle of { radius : float; center : Vector.s }
     | Polygon of { verticies : Vector.s list }
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module In_n_Out = struct
+  type s = Out_to_In | In | In_to_Out
 
   include (val Component.create () : Component.Sig with type t = s)
 end

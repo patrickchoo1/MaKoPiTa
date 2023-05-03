@@ -1,5 +1,6 @@
 open Entities
 open Component
+open Raylib
 
 module System = struct
   module type Sig = sig
@@ -20,7 +21,7 @@ module System = struct
 end
 
 (**********************************************************************
- * Add systems below
+ * Helper function below
  **********************************************************************)
 
 module VectorMath = struct
@@ -61,11 +62,8 @@ module VectorMath = struct
     match v.vec with x, y, z -> sqrt ((x ** 2.) +. (y ** 2.) +. (z ** 2.))
 end
 
-module ShapeCollisionDetection = struct
+module GJK = struct
   include VectorMath
-
-  let components : (module Component.Sig) list =
-    [ (module Position); (module Vector); (module Shape) ]
 
   let support (s1 : Shape.s) (s2 : Shape.s) (d : Vector.s) : Vector.s =
     let p1 =
@@ -76,8 +74,8 @@ module ShapeCollisionDetection = struct
             (List.hd verts) verts
       | Circle { radius = r; center = c } ->
           add c (scale (scale d r) (1. /. magnitude d))
+      | Point { center = c } -> c
     in
-
     let p2 =
       match s2 with
       | Polygon { verticies = verts } ->
@@ -86,6 +84,7 @@ module ShapeCollisionDetection = struct
             (List.hd verts) verts
       | Circle { radius = r; center = c } ->
           add c (scale (scale d r) (1. /. magnitude d))
+      | Point { center = c } -> c
     in
     sub p1 p2
 
@@ -121,7 +120,7 @@ module ShapeCollisionDetection = struct
     | 3 -> triangle_case simplex d
     | _ -> failwith "Invalid Simplex"
 
-  let gfk_collision (s1 : Shape.s) (s2 : Shape.s) : bool =
+  let gjk_collision (s1 : Shape.s) (s2 : Shape.s) : bool =
     let d = ref (make_vec 1. 1. 0.) in
     let simplex = ref [ support s1 s2 !d ] in
     d := sub zero_vec (List.hd !simplex);
@@ -133,7 +132,54 @@ module ShapeCollisionDetection = struct
         handle_simplex simplex' d || loop simplex' d
     in
     loop simplex d
+end
 
+(**********************************************************************
+ * Add systems below
+ **********************************************************************)
+
+module ShapeCollisionDetection = struct
+  include GJK
+
+  let components : (module Component.Sig) list = [ (module Shape) ]
+
+  let in_n_out (id : id) (collided : bool) (pressed : bool) =
+    let state =
+      match In_n_Out.get_opt id with
+      | Some s -> s
+      | None -> failwith "No in n' out state"
+    in
+    match (state, collided, pressed) with
+    | Out_to_In, true, true -> In_n_Out.set id In
+    | In, false, true -> In_n_Out.set id In_to_Out (* Increase score here *)
+    | _ -> In_n_Out.set id Out_to_In
+
+  let on_update ids =
+    let mouse_pos : Vector.s =
+      {
+        vec = (float_of_int (get_mouse_x ()), float_of_int (get_mouse_y ()), 0.);
+      }
+    in
+    let mouse : Shape.s = Point { center = mouse_pos } in
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Shape.get_opt id with
+          | Some s ->
+              let _ =
+                in_n_out id (gjk_collision s mouse) (is_mouse_button_down Left)
+              in
+              on_update_aux t
+          | None -> failwith "No shape component")
+      | [] -> ()
+    in
+    on_update_aux ids
+
+  include (val System.create on_update components : System.Sig)
+end
+
+module RenderShape = struct
+  let components : (module Component.Sig) list = [ (module Shape) ]
   let on_update ids = ()
 
   include (val System.create on_update components : System.Sig)
