@@ -141,18 +141,32 @@ end
 module ShapeCollisionDetection = struct
   include GJK
 
-  let components : (module Component.Sig) list = [ (module Shape) ]
+  let components : (module Component.Sig) list =
+    [ (module Shape); (module In_n_Out) ]
 
+  (* Increase the score by [x] *)
+  let incr_score x =
+    let score_id = Entities.id_of_name "Score" in
+    match Score.get_opt score_id with
+    | Some s -> Score.set (s + x) score_id |> ignore
+    | None -> failwith "Uninitialized score"
+
+  (* Detection for player collision in and out of target *)
   let in_n_out (id : id) (collided : bool) (pressed : bool) =
+    print_endline (string_of_bool collided);
     let state =
       match In_n_Out.get_opt id with
       | Some s -> s
       | None -> failwith "No in n' out state"
     in
     match (state, collided, pressed) with
-    | Out_to_In, true, true -> In_n_Out.set id In
-    | In, false, true -> In_n_Out.set id In_to_Out (* Increase score here *)
-    | _ -> In_n_Out.set id Out_to_In
+    | Out_to_In, true, true -> In_n_Out.set In id
+    | In, true, true -> id
+    | In, false, true ->
+        incr_score 1;
+        In_n_Out.set In_to_Out id
+    | In_to_Out, _, _ -> id
+    | _ -> In_n_Out.set Out_to_In id
 
   let on_update (ids : id list) =
     let mouse_pos : Vector.s =
@@ -199,6 +213,14 @@ module RenderShape = struct
                   draw_line (int_of_float x1) (int_of_float y1)
                     (int_of_float x2) (int_of_float y2) color;
                   draw_polygon (v2 :: t))
+          | [ v_last ] -> (
+              match poly.verticies with
+              | v_first :: _ -> (
+                  match (v_first.vec, v_last.vec) with
+                  | (x1, y1, _), (x2, y2, _) ->
+                      draw_line (int_of_float x1) (int_of_float y1)
+                        (int_of_float x2) (int_of_float y2) color)
+              | _ -> failwith "Not a polygon")
           | _ -> ()
         in
         draw_polygon poly.verticies
@@ -215,6 +237,15 @@ module RenderShape = struct
       | [] -> ()
     in
     on_update_aux ids
+
+  include (val System.create on_update components : System.Sig)
+end
+
+module Active = struct
+  let components : (module Component.Sig) list =
+    [ (module Shape); (module Colors) ]
+
+  let on_update = failwith "Unimplemented"
 
   include (val System.create on_update components : System.Sig)
 end

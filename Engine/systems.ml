@@ -5,6 +5,8 @@ module type S = sig
 end
 
 module Systems : S = struct
-  let systems : (module System.Sig) array = [||]
+  let systems : (module System.Sig) array =
+    [| (module RenderShape); (module ShapeCollisionDetection) |]
+
   let update_all () = Array.iter System.update systems
 end

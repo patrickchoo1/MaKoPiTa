@@ -15,6 +15,7 @@ module Entities : E = struct
   let active : Sparse_arraylist.t = Sparse_arraylist.make 100
 
   let get_active (components : (module Component.Sig) list) =
+    (* print_endline "getting active"; *)
     let rec has_component id comps =
       match comps with
       | [] -> true

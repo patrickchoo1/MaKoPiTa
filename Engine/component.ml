@@ -7,7 +7,7 @@ module Component = struct
     type t
 
     val table : (id, t) Hashtbl.t
-    val set : id -> t -> id
+    val set : t -> id -> id
     val get_opt : id -> t option
   end
 
@@ -17,7 +17,7 @@ module Component = struct
 
       let table : (id, s) Hashtbl.t = Hashtbl.create 0
 
-      let set id value =
+      let set value id =
         Hashtbl.replace table id value;
         id
 
@@ -63,6 +63,18 @@ end
 
 module Colors = struct
   type s = Color.t
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Score = struct
+  type s = int
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Timing = struct
+  type s = int
 
   include (val Component.create () : Component.Sig with type t = s)
 end
