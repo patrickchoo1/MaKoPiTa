@@ -7,11 +7,9 @@ module System = struct
     val update : unit -> unit
   end
 
-  let create on_update components =
+  let create on_update =
     let module S = struct
-      let update () =
-        on_update (Entities.get_active components);
-        ()
+      let update () = on_update ()
     end in
     (module S : Sig)
 
@@ -168,7 +166,7 @@ module ShapeCollisionDetection = struct
     | In_to_Out, _, _ -> id
     | _ -> In_n_Out.set Out_to_In id
 
-  let on_update (ids : id list) =
+  let on_update () =
     let mouse_pos : Vector.s =
       {
         vec = (float_of_int (get_mouse_x ()), float_of_int (get_mouse_y ()), 0.);
@@ -187,9 +185,9 @@ module ShapeCollisionDetection = struct
           | None -> failwith "No shape component")
       | [] -> ()
     in
-    on_update_aux ids
+    on_update_aux (Entities.get_active components)
 
-  include (val System.create on_update components : System.Sig)
+  include (val System.create on_update : System.Sig)
 end
 
 module RenderShape = struct
@@ -225,7 +223,7 @@ module RenderShape = struct
         in
         draw_polygon poly.verticies
 
-  let on_update (ids : id list) =
+  let on_update () =
     let rec on_update_aux ids =
       match ids with
       | id :: t -> (
@@ -236,16 +234,28 @@ module RenderShape = struct
           | _ -> failwith "No shape component")
       | [] -> ()
     in
-    on_update_aux ids
+    on_update_aux (Entities.get_active components)
 
-  include (val System.create on_update components : System.Sig)
+  include (val System.create on_update : System.Sig)
 end
 
-module Active = struct
+(* MUST LOAD SPRITE AFTER INITIALIZING WINDOW *)
+module RenderSprite = struct
   let components : (module Component.Sig) list =
-    [ (module Shape); (module Colors) ]
+    [ (module Sprite); (module Position) ]
 
-  let on_update = failwith "Unimplemented"
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match (Sprite.get_opt id, Position.get_opt id) with
+          | Some spr, Some pos ->
+              draw_texture spr pos.x pos.y Color.white;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
 
-  include (val System.create on_update components : System.Sig)
+  include (val System.create on_update : System.Sig)
 end

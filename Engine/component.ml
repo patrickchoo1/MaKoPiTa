@@ -1,5 +1,3 @@
-open Raylib
-
 type id = int
 
 module Component = struct
@@ -9,6 +7,7 @@ module Component = struct
     val table : (id, t) Hashtbl.t
     val set : t -> id -> id
     val get_opt : id -> t option
+    val get_keys : unit -> id list
   end
 
   let create (type s) () =
@@ -22,6 +21,7 @@ module Component = struct
         id
 
       let get_opt id = Hashtbl.find_opt table id
+      let get_keys () = Hashtbl.fold (fun id _ acc -> id :: acc) table []
     end in
     (module C : Sig with type t = s)
 
@@ -35,7 +35,14 @@ end
  **********************************************************************)
 
 module Position = struct
-  type s = { x : float; y : float }
+  type s = { x : int; y : int }
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Multiposition = struct
+  type pos = { x : int; y : int }
+  type s = pos list
 
   include (val Component.create () : Component.Sig with type t = s)
 end
@@ -62,7 +69,7 @@ module In_n_Out = struct
 end
 
 module Colors = struct
-  type s = Color.t
+  type s = Raylib.Color.t
 
   include (val Component.create () : Component.Sig with type t = s)
 end
@@ -73,8 +80,23 @@ module Score = struct
   include (val Component.create () : Component.Sig with type t = s)
 end
 
-module Timing = struct
+module Health = struct
   type s = int
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Timing = struct
+  (* In seconds *)
+  type s = float
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Sprite = struct
+  type s = Raylib.Texture2D.t
+
+  let load path = Raylib.load_texture path
 
   include (val Component.create () : Component.Sig with type t = s)
 end

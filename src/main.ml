@@ -46,13 +46,17 @@ let s1 : Shape.s = Polygon { verticies = vert_list }
 
 let _ =
   Entities.id_of_name "Target"
-  |> Shape.set s1 |> Colors.set Color.black |> In_n_Out.set Out_to_In
+  |> Shape.set s1 |> Colors.set Color.black |> In_n_Out.set Out_to_In |> ignore
 
 let _ = Entities.id_of_name "Score" |> Score.set 0
 
 let setup () =
   Raylib.init_window 800 450 "Test Game";
-  Raylib.set_target_fps 60
+  Raylib.set_target_fps 60;
+  Entities.id_of_name "Health"
+  |> Sprite.set (Sprite.load "./assets/Skewed Rectangle.png")
+  |> Position.set { x = 200; y = 200 }
+  |> ignore
 
 let rec loop () =
   if Raylib.window_should_close () then Raylib.close_window ()

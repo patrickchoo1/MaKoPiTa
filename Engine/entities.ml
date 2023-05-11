@@ -6,6 +6,8 @@ type id = int
 
 module type E = sig
   val get_active : (module Component.Sig) list -> id list
+  val set_active : id -> unit
+  val remove_active : id -> unit
   val id_of_name : name -> id
 end
 
@@ -15,7 +17,6 @@ module Entities : E = struct
   let active : Sparse_arraylist.t = Sparse_arraylist.make 100
 
   let get_active (components : (module Component.Sig) list) =
-    (* print_endline "getting active"; *)
     let rec has_component id comps =
       match comps with
       | [] -> true
@@ -27,10 +28,13 @@ module Entities : E = struct
     let rec is_active id acc =
       match id with
       | id :: t ->
-          if has_component id components then id :: acc else is_active acc t
+          if has_component id components then id :: acc else is_active t acc
       | [] -> acc
     in
     is_active (Sparse_arraylist.set_to_list active) []
+
+  let set_active (id : id) = Sparse_arraylist.insert id active |> ignore
+  let remove_active (id : id) = Sparse_arraylist.delete id active |> ignore
 
   let id_of_name (name : name) : id =
     match Hashtbl.find_opt entities name with
