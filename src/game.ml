@@ -3,6 +3,7 @@ open Engine
 open Entities
 open Component
 open Systems
+open Utility.Timer
 
 (**********************************************************************
  * Helper function below
@@ -21,7 +22,7 @@ let target_num = ref ~-1
 let make_target shape time =
   target_num := !target_num + 1;
   Entities.id_of_name ("Target" ^ string_of_int !target_num)
-  |> Shape.set shape |> Colors.set Color.black |> In_n_Out.set Out_to_In
+  |> Shape.set shape |> Colors.set Color.black |> In_n_Out.set Out
   |> Timing.set time |> ignore
 
 let make_polygon (vert_list : (int * int) list) : Shape.s =
@@ -35,8 +36,6 @@ let make_polygon (vert_list : (int * int) list) : Shape.s =
 
 let make_circle (r : float) (c : float * float) : Shape.s =
   Circle { radius = r; center = { vec = (fst c, snd c, 0.0) } }
-
-let get_time () = Sys.time () *. 10.
 
 (**********************************************************************
  * Level Module
@@ -55,7 +54,6 @@ module type Level = sig
 end
 
 module MakeLevel (L : LevelData) : Level = struct
-  let starttime = ref 0.
   let target_timings = ref []
   let unwrap a = match a with Some a -> a | None -> failwith "None"
 
@@ -84,13 +82,7 @@ module MakeLevel (L : LevelData) : Level = struct
     target_timings := List.sort compare_timings (Timing.get_keys ());
     Raylib.play_music_stream
       (Entities.id_of_name "Music" |> Audio.get_opt |> unwrap);
-    starttime := get_time ();
-    Entities.id_of_name "Starttime"
-    |> Timing.set !starttime |> Entities.set_active |> ignore;
-    Entities.id_of_name "Target Interval"
-    |> Entities.set_active
-    |> Timing.set L.target_interval
-    |> ignore
+    Timer.init_timer L.target_interval
 
   let rec loop () =
     match Raylib.window_should_close () with
@@ -103,6 +95,7 @@ module MakeLevel (L : LevelData) : Level = struct
         (* print_list !target_timings; *)
         (* print_list (Entities.get_all_active ()); *)
         (* print_endline ""; *)
+        print_endline (string_of_float (Timer.get_time ()));
         begin_drawing ();
         clear_background Color.raywhite;
         update_active ();
@@ -111,15 +104,6 @@ module MakeLevel (L : LevelData) : Level = struct
         loop ()
 
   and update_active () =
-    let is_before_int time =
-      let adjusted_time = time +. !starttime in
-      (* print_endline (string_of_float (get_time ())); *)
-      get_time () <= adjusted_time -. L.target_interval
-    in
-    let is_after_int time =
-      let adjusted_time = time +. !starttime in
-      get_time () >= adjusted_time +. L.target_interval
-    in
     let rec aux ids =
       match ids with
       | id :: t -> (
@@ -128,17 +112,21 @@ module MakeLevel (L : LevelData) : Level = struct
           | None -> failwith "No timing")
       | [] -> ()
     and is_in_int id t time =
-      match is_before_int time with
+      match Timer.is_before_int time with
       | true -> ()
       | false -> (
-          match is_after_int time with
+          match Timer.is_after_int time with
           | true -> remove_from_active id
           | false ->
-              Entities.set_active id |> ignore;
+              set_to_active id;
               aux t)
     and remove_from_active id =
       Entities.remove_active id |> ignore;
       target_timings := match !target_timings with _ :: t -> t | [] -> []
+    and set_to_active id =
+      id |> In_n_Out.get_opt |> function
+      | Some In_to_Out -> ()
+      | _ -> Entities.set_active id |> ignore
     in
     aux !target_timings
 end
@@ -222,7 +210,7 @@ module Level1Data : LevelData = struct
     make_target (make_circle 30.0 (400.0, 225.00)) 189.00
 
   let music_path = "music/plantasia.mp3"
-  let target_interval = 2.0
+  let target_interval = 1.0
 end
 
 module Level1 = MakeLevel (Level1Data)

@@ -63,7 +63,7 @@ module Shape = struct
 end
 
 module In_n_Out = struct
-  type s = Out_to_In | In | In_to_Out
+  type s = Out | Out_to_In | In | In_to_Out
 
   include (val Component.create () : Component.Sig with type t = s)
 end

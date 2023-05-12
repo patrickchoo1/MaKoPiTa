@@ -168,14 +168,15 @@ module ShapeCollisionDetection = struct
       | None -> failwith "No in n' out state"
     in
     match (state, collided, pressed) with
+    | Out, false, true -> In_n_Out.set Out_to_In id
     | Out_to_In, true, true -> In_n_Out.set In id
     | In, true, true -> id
     | In, false, true ->
+        In_n_Out.set In_to_Out id |> ignore;
         incr_score 1;
-        (* Remove target from active *)
-        In_n_Out.set In_to_Out id
+        Entities.remove_active id
     | In_to_Out, _, _ -> id
-    | _ -> In_n_Out.set Out_to_In id
+    | _ -> In_n_Out.set Out id
 
   let on_update () =
     let mouse_pos : Vector.s =
@@ -292,21 +293,14 @@ module PlayAudio = struct
 end
 
 module AnimateTargets = struct
+  include Utility.Timer
+
   let components : (module Component.Sig) list =
     [ (module Shape); (module Timing) ]
 
   let on_update () =
-    let starttime =
-      Entities.id_of_name "Starttime" |> Timing.get_opt |> unwrap
-    in
-    let interval =
-      Entities.id_of_name "Target Interval" |> Timing.get_opt |> unwrap
-    in
     let curr_radius radius target_time =
-      let percent =
-        ((Sys.time () *. 10.) -. starttime -. target_time +. interval)
-        /. interval
-      in
+      let percent = Timer.percent_of_int target_time in
       radius *. if percent > 1. then 1. else percent
     in
     let rec on_update_aux ids =
