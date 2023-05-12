@@ -134,6 +134,14 @@ end
 
 let unwrap a = match a with Some a -> a | None -> failwith "None"
 
+let rec print_list lst =
+  match lst with
+  | [] -> ()
+  | x :: xs ->
+      print_int x;
+      print_string " ";
+      print_list xs
+
 (**********************************************************************
  * Add systems below
  **********************************************************************)
@@ -153,7 +161,7 @@ module ShapeCollisionDetection = struct
 
   (* Detection for player collision in and out of target *)
   let in_n_out (id : id) (collided : bool) (pressed : bool) =
-    print_endline (string_of_bool collided);
+    (* print_endline (string_of_bool collided); *)
     let state =
       match In_n_Out.get_opt id with
       | Some s -> s
@@ -227,6 +235,7 @@ module RenderShape = struct
         draw_polygon poly.verticies
 
   let on_update () =
+    (* print_list (Entities.get_active components); *)
     let rec on_update_aux ids =
       match ids with
       | id :: t -> (
@@ -295,7 +304,8 @@ module AnimateTargets = struct
     in
     let curr_radius radius target_time =
       let percent =
-        (Sys.time () -. starttime -. target_time +. interval) /. interval
+        ((Sys.time () *. 10.) -. starttime -. target_time +. interval)
+        /. interval
       in
       radius *. if percent > 1. then 1. else percent
     in

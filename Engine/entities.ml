@@ -29,7 +29,8 @@ module Entities : E = struct
     let rec is_active id acc =
       match id with
       | id :: t ->
-          if has_component id components then id :: acc else is_active t acc
+          if has_component id components then is_active t (id :: acc)
+          else is_active t acc
       | [] -> acc
     in
     is_active (Sparse_arraylist.set_to_list active) []

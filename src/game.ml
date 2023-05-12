@@ -5,7 +5,7 @@ open Component
 open Systems
 
 (**********************************************************************
- * Target creation helper function below
+ * Helper function below
  **********************************************************************)
 
 let rec print_list lst =
@@ -36,6 +36,8 @@ let make_polygon (vert_list : (int * int) list) : Shape.s =
 let make_circle (r : float) (c : float * float) : Shape.s =
   Circle { radius = r; center = { vec = (fst c, snd c, 0.0) } }
 
+let get_time () = Sys.time () *. 10.
+
 (**********************************************************************
  * Level Module
  **********************************************************************)
@@ -59,7 +61,7 @@ module MakeLevel (L : LevelData) : Level = struct
 
   let setup () =
     Raylib.init_window 800 450 "Test Game";
-    Raylib.set_target_fps 60;
+    Raylib.set_target_fps 30;
     Raylib.init_audio_device ()
 
   let compare_timings (id1 : id) (id2 : id) =
@@ -82,7 +84,7 @@ module MakeLevel (L : LevelData) : Level = struct
     target_timings := List.sort compare_timings (Timing.get_keys ());
     Raylib.play_music_stream
       (Entities.id_of_name "Music" |> Audio.get_opt |> unwrap);
-    starttime := Sys.time ();
+    starttime := get_time ();
     Entities.id_of_name "Starttime"
     |> Timing.set !starttime |> Entities.set_active |> ignore;
     Entities.id_of_name "Target Interval"
@@ -99,8 +101,8 @@ module MakeLevel (L : LevelData) : Level = struct
         Raylib.close_window ()
     | false ->
         (* print_list !target_timings; *)
-        print_list (Entities.get_all_active ());
-        print_endline "";
+        (* print_list (Entities.get_all_active ()); *)
+        (* print_endline ""; *)
         begin_drawing ();
         clear_background Color.raywhite;
         update_active ();
@@ -111,28 +113,32 @@ module MakeLevel (L : LevelData) : Level = struct
   and update_active () =
     let is_before_int time =
       let adjusted_time = time +. !starttime in
-      Sys.time () < adjusted_time -. L.target_interval
+      (* print_endline (string_of_float (get_time ())); *)
+      get_time () <= adjusted_time -. L.target_interval
     in
     let is_after_int time =
       let adjusted_time = time +. !starttime in
-      Sys.time () > adjusted_time +. L.target_interval
+      get_time () >= adjusted_time +. L.target_interval
     in
     let rec aux ids =
       match ids with
       | id :: t -> (
           match Timing.get_opt id with
-          | Some time -> (
-              match is_before_int time with
-              | true -> ()
-              | false -> (
-                  match is_after_int time with
-                  | false -> Entities.set_active id |> ignore
-                  | true -> (
-                      Entities.remove_active id |> ignore;
-                      target_timings :=
-                        match !target_timings with _ :: t -> t | [] -> [])))
-          | None -> aux t)
+          | Some time -> is_in_int id t time
+          | None -> failwith "No timing")
       | [] -> ()
+    and is_in_int id t time =
+      match is_before_int time with
+      | true -> ()
+      | false -> (
+          match is_after_int time with
+          | true -> remove_from_active id
+          | false ->
+              Entities.set_active id |> ignore;
+              aux t)
+    and remove_from_active id =
+      Entities.remove_active id |> ignore;
+      target_timings := match !target_timings with _ :: t -> t | [] -> []
     in
     aux !target_timings
 end
@@ -216,7 +222,7 @@ module Level1Data : LevelData = struct
     make_target (make_circle 30.0 (400.0, 225.00)) 189.00
 
   let music_path = "music/plantasia.mp3"
-  let target_interval = 10.
+  let target_interval = 2.0
 end
 
 module Level1 = MakeLevel (Level1Data)
