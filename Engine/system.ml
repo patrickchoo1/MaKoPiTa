@@ -132,6 +132,8 @@ module GJK = struct
     loop simplex d
 end
 
+let unwrap a = match a with Some a -> a | None -> failwith "None"
+
 (**********************************************************************
  * Add systems below
  **********************************************************************)
@@ -162,6 +164,7 @@ module ShapeCollisionDetection = struct
     | In, true, true -> id
     | In, false, true ->
         incr_score 1;
+        (* Remove target from active *)
         In_n_Out.set In_to_Out id
     | In_to_Out, _, _ -> id
     | _ -> In_n_Out.set Out_to_In id
@@ -253,6 +256,61 @@ module RenderSprite = struct
               draw_texture spr pos.x pos.y Color.white;
               on_update_aux t
           | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module PlayAudio = struct
+  let components : (module Component.Sig) list = [ (module Audio) ]
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Audio.get_opt id with
+          | Some audio ->
+              Raylib.update_music_stream audio;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module AnimateTargets = struct
+  let components : (module Component.Sig) list =
+    [ (module Shape); (module Timing) ]
+
+  let on_update () =
+    let starttime =
+      Entities.id_of_name "Starttime" |> Timing.get_opt |> unwrap
+    in
+    let interval =
+      Entities.id_of_name "Target Interval" |> Timing.get_opt |> unwrap
+    in
+    let curr_radius radius target_time =
+      let percent =
+        (Sys.time () -. starttime -. target_time +. interval) /. interval
+      in
+      radius *. if percent > 1. then 1. else percent
+    in
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match (Shape.get_opt id, Timing.get_opt id) with
+          | Some (Circle c), Some time -> (
+              match c.center.vec with
+              | x, y, _ ->
+                  draw_circle (int_of_float x) (int_of_float y)
+                    (curr_radius c.radius time)
+                    Color.blue;
+                  on_update_aux t)
+          | _ -> failwith "No circle/time")
       | [] -> ()
     in
     on_update_aux (Entities.get_active components)

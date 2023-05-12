@@ -6,9 +6,10 @@ type id = int
 
 module type E = sig
   val get_active : (module Component.Sig) list -> id list
-  val set_active : id -> unit
-  val remove_active : id -> unit
+  val set_active : id -> id
+  val remove_active : id -> id
   val id_of_name : name -> id
+  val get_all_active : unit -> id list
 end
 
 module Entities : E = struct
@@ -33,8 +34,15 @@ module Entities : E = struct
     in
     is_active (Sparse_arraylist.set_to_list active) []
 
-  let set_active (id : id) = Sparse_arraylist.insert id active |> ignore
-  let remove_active (id : id) = Sparse_arraylist.delete id active |> ignore
+  let set_active (id : id) =
+    Sparse_arraylist.insert id active |> ignore;
+    id
+
+  let remove_active (id : id) =
+    Sparse_arraylist.delete id active |> ignore;
+    id
+
+  let get_all_active () = Sparse_arraylist.set_to_list active
 
   let id_of_name (name : name) : id =
     match Hashtbl.find_opt entities name with
@@ -42,6 +50,5 @@ module Entities : E = struct
     | None ->
         curr_id := !curr_id + 1;
         Hashtbl.replace entities name !curr_id;
-        let _ = Sparse_arraylist.insert !curr_id active in
         !curr_id
 end

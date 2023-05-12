@@ -100,3 +100,11 @@ module Sprite = struct
 
   include (val Component.create () : Component.Sig with type t = s)
 end
+
+module Audio = struct
+  type s = Raylib.Music.t
+
+  let load path = Raylib.load_music_stream path
+
+  include (val Component.create () : Component.Sig with type t = s)
+end

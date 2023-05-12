@@ -7,9 +7,11 @@ end
 module Systems : S = struct
   let systems : (module System.Sig) array =
     [|
+      (module PlayAudio);
       (module RenderShape);
-      (module ShapeCollisionDetection);
       (module RenderSprite);
+      (module ShapeCollisionDetection);
+      (module AnimateTargets);
     |]
 
   let update_all () = Array.iter System.update systems
