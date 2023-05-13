@@ -58,6 +58,10 @@ module VectorMath = struct
 
   let magnitude (v : Vector.s) : float =
     match v.vec with x, y, z -> sqrt ((x ** 2.) +. (y ** 2.) +. (z ** 2.))
+
+  (* It's working but it's not? I tried to work some tricks around
+     it but it still doesn't work. Idk why *)
+  let normalize (v : Vector.s) : Vector.s = scale v (1. /. magnitude v)
 end
 
 module GJK = struct
@@ -78,10 +82,10 @@ module GJK = struct
       match s2 with
       | Polygon { verticies = verts } ->
           List.fold_left
-            (fun acc v -> if dot v d > dot acc d then v else acc)
+            (fun acc v -> if dot v (neg d) > dot acc (neg d) then v else acc)
             (List.hd verts) verts
       | Circle { radius = r; center = c } ->
-          add c (scale (scale d r) (1. /. magnitude d))
+          add c (scale (scale (neg d) r) (1. /. magnitude (neg d)))
       | Point { center = c } -> c
     in
     sub p1 p2
@@ -89,7 +93,7 @@ module GJK = struct
   let line_case simplex d =
     match !simplex with
     | [ b; a ] ->
-        let ab, ao = (sub b a, neg a) in
+        let ab, ao = (sub b a, sub zero_vec a) in
         let ab_perp = cross (cross ab ao) ab in
         d := ab_perp;
         if ab_perp = zero_vec then true else false
@@ -98,16 +102,16 @@ module GJK = struct
   let triangle_case simplex d =
     match !simplex with
     | [ c; b; a ] ->
-        let ab, ac, ao = (sub b a, sub c a, neg a) in
+        let ab, ac, ao = (sub b a, sub c a, sub zero_vec a) in
         let ab_perp = cross (cross ac ab) ab in
         let ac_perp = cross (cross ab ac) ac in
         if dot ab_perp ao > 0. then (
-          d := ab_perp;
           simplex := [ b; a ];
+          d := ab_perp;
           false)
         else if dot ac_perp ao > 0. then (
-          d := ac_perp;
           simplex := [ c; a ];
+          d := ac_perp;
           false)
         else true
     | _ -> failwith "Invalid Triangle Simplex"
@@ -119,15 +123,15 @@ module GJK = struct
     | _ -> failwith "Invalid Simplex"
 
   let gjk_collision (s1 : Shape.s) (s2 : Shape.s) : bool =
-    let d = ref (make_vec 1. 1. 0.) in
+    let d = ref (make_vec 1. 1. 0. |> normalize) in
     let simplex = ref [ support s1 s2 !d ] in
     d := sub zero_vec (List.hd !simplex);
     let rec loop simplex d =
       let a = support s1 s2 !d in
       if dot a !d < 0. then false
       else
-        let simplex' = ref (a :: !simplex) in
-        handle_simplex simplex' d || loop simplex' d
+        let simplex' = ref (!simplex @ [ a ]) in
+        if handle_simplex simplex' d then true else loop simplex' d
     in
     loop simplex d
 end

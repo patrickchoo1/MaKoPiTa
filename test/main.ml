@@ -1,5 +1,7 @@
 open OUnit2
 open Utility
+open Engine.Component
+open Engine.System
 
 (**********************************************************************
  * Pretty Printer Helper Functions
@@ -100,5 +102,195 @@ let sparse_arraylist_tests =
     sparse_set_to_list_test "Cleared list of set3" set3 [];
   ]
 
-let suite = "search test suite" >::: List.flatten [ sparse_arraylist_tests ]
+(**********************************************************************
+ * Vector Math Tests
+ **********************************************************************)
+
+let vector_math_tests =
+  [
+    ( "zero_vec is origin" >:: fun _ ->
+      assert_equal { Vector.vec = (0., 0., 0.) } VectorMath.zero_vec );
+    ( "make_vec 1 1 1 is (1, 1, 1)" >:: fun _ ->
+      assert_equal { Vector.vec = (1., 1., 1.) } (VectorMath.make_vec 1. 1. 1.)
+    );
+    ( "(0, 0, 0) + (1, 1, 1) is (1, 1, 1)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (1., 1., 1.) }
+        (VectorMath.add VectorMath.zero_vec (VectorMath.make_vec 1. 1. 1.)) );
+    ( "(1, 1, 1) + (1, 1, 1) is (2, 2, 2)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (2., 2., 2.) }
+        (VectorMath.add
+           (VectorMath.make_vec 1. 1. 1.)
+           (VectorMath.make_vec 1. 1. 1.)) );
+    ( "(0, 0, 0) - (1, 1, 1) is (-1, -1, -1)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (~-.1., ~-.1., ~-.1.) }
+        (VectorMath.sub VectorMath.zero_vec (VectorMath.make_vec 1. 1. 1.)) );
+    ( "(2, 1, 0) - (1, 1, 1) is (1, 0, -1)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (1., 0., ~-.1.) }
+        (VectorMath.sub
+           (VectorMath.make_vec 2. 1. 0.)
+           (VectorMath.make_vec 1. 1. 1.)) );
+    ( "-(0, 0, 0) is (0, 0, 0)" >:: fun _ ->
+      assert_equal VectorMath.zero_vec (VectorMath.neg VectorMath.zero_vec) );
+    ( "-(1, 1, 1) is (-1, -1, -1)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (~-.1., ~-.1., ~-.1.) }
+        (VectorMath.neg (VectorMath.make_vec 1. 1. 1.)) );
+    ( "(0, 0, 0)*2 is (0, 0, 0)" >:: fun _ ->
+      assert_equal VectorMath.zero_vec (VectorMath.scale VectorMath.zero_vec 2.)
+    );
+    ( "(1, 1, 1)*2 is (2, 2, 2)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (2., 2., 2.) }
+        (VectorMath.scale (VectorMath.make_vec 1. 1. 1.) 2.) );
+    ( "(0, 0, 0) * (1, 1, 1) is 0" >:: fun _ ->
+      assert_equal 0.
+        (VectorMath.dot VectorMath.zero_vec (VectorMath.make_vec 1. 1. 1.)) );
+    ( "(1, 2, 3) * (3, 2, 1) is 10" >:: fun _ ->
+      assert_equal 10.
+        (VectorMath.dot
+           (VectorMath.make_vec 1. 2. 3.)
+           (VectorMath.make_vec 3. 2. 1.)) );
+    ( "(0, 0, 0) x (1, 1, 1) is (0, 0, 0)" >:: fun _ ->
+      assert_equal VectorMath.zero_vec
+        (VectorMath.cross VectorMath.zero_vec (VectorMath.make_vec 1. 1. 1.)) );
+    ( "(1, 2, 3) * (3, 2, 1) is (-4, 8, -4)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (~-.4., 8., ~-.4.) }
+        (VectorMath.cross
+           (VectorMath.make_vec 1. 2. 3.)
+           (VectorMath.make_vec 3. 2. 1.)) );
+    ( "(3, 2, 1) * (1, 2, 3) is (4, -8, 4)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (4., ~-.8., 4.) }
+        (VectorMath.cross
+           (VectorMath.make_vec 3. 2. 1.)
+           (VectorMath.make_vec 1. 2. 3.)) );
+    ( "|(0, 0, 0)| is 0" >:: fun _ ->
+      assert_equal 0. (VectorMath.magnitude VectorMath.zero_vec) );
+    ( "|(2, 1, 2)| is 3" >:: fun _ ->
+      assert_equal 3. (VectorMath.magnitude (VectorMath.make_vec 2. 1. 2.)) );
+    ( "|(3, 4, 0)| is 5" >:: fun _ ->
+      assert_equal 5. (VectorMath.magnitude (VectorMath.make_vec 3. 4. 0.)) );
+    (* THIS TEST CASE IS FAILING EVEN THOUGH IT'S "WORKING" *)
+    ( "normalize (3, 4, 0) is (0.6, 0.8, 0)" >:: fun _ ->
+      assert_equal
+        { Vector.vec = (0.6, 0.8, 0.) }
+        (VectorMath.normalize (VectorMath.make_vec 3. 4. 0.)) );
+  ]
+
+(**********************************************************************
+ * GJK Tester Functions
+ **********************************************************************)
+
+let gjk_test (name : string) (target : Shape.s) (pos : Shape.s)
+    (expected_output : bool) : test =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (GJK.gjk_collision target pos)
+    ~printer:string_of_bool
+
+let pos_x : Vector.s = VectorMath.make_vec 1. 0. 0.
+let neg_x : Vector.s = VectorMath.make_vec ~-.1. 0. 0.
+let pos_y : Vector.s = VectorMath.make_vec 0. 1. 0.
+let neg_y : Vector.s = VectorMath.make_vec 0. ~-.1. 0.
+
+let random_vert : Vector.s list =
+  [
+    VectorMath.make_vec 5. 5. 0.;
+    VectorMath.make_vec 100. 5. 0.;
+    VectorMath.make_vec 700. 300. 0.;
+    VectorMath.make_vec 300. 500. 0.;
+    VectorMath.make_vec 5. 100. 0.;
+  ]
+
+let unit_circle : Shape.s =
+  Circle { radius = 1.0; center = VectorMath.zero_vec }
+
+let triangle : Shape.s = Polygon { verticies = [ neg_x; pos_x; pos_y ] }
+let quad : Shape.s = Polygon { verticies = [ pos_x; pos_y; neg_x; neg_y ] }
+let random_shape : Shape.s = Polygon { verticies = random_vert }
+let pos00 : Shape.s = Point { center = VectorMath.zero_vec }
+let pos10 : Shape.s = Point { center = pos_x }
+let pos01 : Shape.s = Point { center = pos_y }
+let pos_10 : Shape.s = Point { center = neg_x }
+let pos0_1 : Shape.s = Point { center = neg_y }
+let pos11 : Shape.s = Point { center = VectorMath.add pos_x pos_y }
+let pos_11 : Shape.s = Point { center = VectorMath.add neg_x pos_y }
+let pos_1_1 : Shape.s = Point { center = VectorMath.add neg_x neg_y }
+let pos1_1 : Shape.s = Point { center = VectorMath.add pos_x neg_y }
+
+let gjk_tests =
+  [
+    gjk_test "(0,0) is in unit circle" unit_circle pos00 true;
+    gjk_test "(1,0) is in unit circle" unit_circle pos10 true;
+    gjk_test "(0,1) is in unit circle" unit_circle pos01 true;
+    gjk_test "(-1,0) is in unit circle" unit_circle pos_10 true;
+    gjk_test "(0,-1) is in unit circle" unit_circle pos0_1 true;
+    gjk_test "(1,1) is not in unit circle" unit_circle pos11 false;
+    gjk_test "(-1,1) is not in unit circle" unit_circle pos_11 false;
+    gjk_test "(-1,-1) is not in unit circle" unit_circle pos_1_1 false;
+    gjk_test "(1,-1) is not in unit circle" unit_circle pos1_1 false;
+    gjk_test "(0,0) is in triangle" triangle pos00 true;
+    gjk_test "(1,0) is in triangle" triangle pos10 true;
+    gjk_test "(0,1) is in triangle" triangle pos01 true;
+    gjk_test "(-1,0) is in triangle" triangle pos_10 true;
+    gjk_test "(0,-1) is not in triangle" triangle pos0_1 false;
+    gjk_test "(1,1) is not in triangle" triangle pos11 false;
+    gjk_test "(-1,1) is not in triangle" triangle pos_11 false;
+    gjk_test "(0,0) is in quadrilateral" quad pos00 true;
+    gjk_test "(1,0) is in quadrilateral" quad pos10 true;
+    gjk_test "(0,1) is in quadrilateral" quad pos01 true;
+    gjk_test "(-1,0) is in quadrilateral" quad pos_10 true;
+    gjk_test "(0,-1) is in quadrilateral" quad pos0_1 true;
+    gjk_test "(1,1) is not in quadrilateral" quad pos11 false;
+    gjk_test "(-1,1) is not in quadrilateral" quad pos_11 false;
+    gjk_test "(-1,-1) is not in quadrilateral" quad pos_1_1 false;
+    gjk_test "(1,-1) is not in quadrilateral" quad pos1_1 false;
+    gjk_test "(5,5) is in random shape" random_shape
+      (Point { center = VectorMath.make_vec 5. 5. 0. })
+      true;
+    gjk_test "(100,5) is in random shape" random_shape
+      (Point { center = VectorMath.make_vec 100. 5. 0. })
+      true;
+    gjk_test "(700,300) is in random shape" random_shape
+      (Point { center = VectorMath.make_vec 700. 300. 0. })
+      true;
+    gjk_test "(300,500) is in random shape" random_shape
+      (Point { center = VectorMath.make_vec 300. 500. 0. })
+      true;
+    gjk_test "(5,100) is in random shape" random_shape
+      (Point { center = VectorMath.make_vec 5. 100. 0. })
+      true;
+    gjk_test "(300,300) is in random shape" random_shape
+      (Point { center = VectorMath.make_vec 300. 300. 0. })
+      true;
+    gjk_test "(0,0) is not in random shape" random_shape pos00 false;
+    gjk_test "(600,400) is not in random shape" random_shape
+      (Point { center = VectorMath.make_vec 600. 400. 0. })
+      false;
+    gjk_test "(500,180) is not in random shape" random_shape
+      (Point { center = VectorMath.make_vec 500. 180. 0. })
+      false;
+    gjk_test "(200,400) is not in random shape" random_shape
+      (Point { center = VectorMath.make_vec 200. 400. 0. })
+      false;
+    gjk_test "circle is in triangle" unit_circle triangle true;
+    gjk_test "circle is in quad" unit_circle triangle true;
+    gjk_test "circle is not in random shape" unit_circle random_shape false;
+    gjk_test "triangle is in circle" triangle unit_circle true;
+    gjk_test "triangle is in quad" triangle quad true;
+    gjk_test "triangle is not in random shape" triangle random_shape false;
+    gjk_test "quad is in circle" quad unit_circle true;
+    gjk_test "quad is in triangle" quad triangle true;
+    gjk_test "quad is not in random shape" quad random_shape false;
+  ]
+
+let suite =
+  "search test suite"
+  >::: List.flatten [ sparse_arraylist_tests; vector_math_tests; gjk_tests ]
+
 let _ = run_test_tt_main suite
