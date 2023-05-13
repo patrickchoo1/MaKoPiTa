@@ -321,3 +321,23 @@ module AnimateTargets = struct
 
   include (val System.create on_update : System.Sig)
 end
+
+module ScoreCounter = struct
+  let components : (module Component.Sig) list =
+    [ (module Position); (module Score); (module Sprite) ]
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Score.get_opt id with
+          | Some scr ->
+              draw_text "Score" 400 255 200 Color.black;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos/score")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end

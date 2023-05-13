@@ -95,7 +95,12 @@ module MakeLevel (L : LevelData) : Level = struct
         (* print_list !target_timings; *)
         (* print_list (Entities.get_all_active ()); *)
         (* print_endline ""; *)
-        print_endline (string_of_float (Timer.get_time ()));
+        (*print_endline (string_of_float (Timer.get_time ()));*)
+        let score_id = Entities.id_of_name "Score" in
+        print_endline (string_of_int score_id);
+        (*match Score.get_opt score_id with
+          | Some (s : int) -> print_endline (string_of_int s)
+          | None -> failwith "Uninitialized score"*)
         begin_drawing ();
         clear_background Color.raywhite;
         update_active ();
@@ -214,3 +219,23 @@ module Level1Data : LevelData = struct
 end
 
 module Level1 = MakeLevel (Level1Data)
+
+module StartScreen : Level = struct
+  let setup () =
+    Raylib.init_window 800 450 "Starting screen";
+    Raylib.set_target_fps 30
+
+  let init () = ()
+
+  let rec loop () =
+    match Raylib.window_should_close () with
+    | true -> Raylib.close_window ()
+    | false ->
+        if Raylib.is_key_pressed Key.One then
+          () |> Level1.setup |> Level1.init |> Level1.loop;
+        begin_drawing ();
+        clear_background Color.raywhite;
+        Raylib.draw_text "Press 1 to play Level 1" 175 200 40 Color.black;
+        end_drawing ();
+        loop ()
+end
