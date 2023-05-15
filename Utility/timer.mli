@@ -1,6 +1,4 @@
 module Timer : sig
-  (** [Timer] module  *)
-
   val init_timer : float -> unit
   (** [init_timer] initializes the start time of a game when the player first 
       opens it *)

@@ -31,6 +31,7 @@ loc:
 	cloc --by-file --include-lang=OCaml .
 
 doc:
+	dune clean
 	dune build @doc
 
 opendoc: doc

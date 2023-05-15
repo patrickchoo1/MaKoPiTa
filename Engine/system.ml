@@ -31,32 +31,30 @@ module VectorMath = struct
   let make_vec (x : float) (y : float) (z : float) : Vector.s =
     { vec = (x, y, z) }
 
-  (** [add v1 v2] adds vector [v1] and vector [v2]. 
-      Ex: [add (1., 1., 1.) (1., 1., 1.) = (2., 2., 2.)]. *)
+  (** [add v1 v2] adds vector [v1] and vector [v2]. *)
   let add (v1 : Vector.s) (v2 : Vector.s) : Vector.s =
     match (v1.vec, v2.vec) with
     | (x1, y1, z1), (x2, y2, z2) -> { vec = (x1 +. x2, y1 +. y2, z1 +. z2) }
 
-  (** [sub v1 v2] subtracts vector [v2] from vector [v1].
-      Ex: [sub (2., 1., 0.) (1., 1., 1.) = (1., 0., ~-.1.)]. *)
+  (** [sub v1 v2] subtracts vector [v2] from vector [v1]. *)
   let sub (v1 : Vector.s) (v2 : Vector.s) : Vector.s =
     match (v1.vec, v2.vec) with
     | (x1, y1, z1), (x2, y2, z2) -> { vec = (x1 -. x2, y1 -. y2, z1 -. z2) }
 
-  (** [neg v] makes vector [v] into [-v]. 
-      Ex: [neg (1., 1., 1.) = (~-.1., ~-.1., ~-.1.)]. *)
+  (** [neg v] makes vector [v] into [-v]. *)
   let neg (v : Vector.s) : Vector.s =
     match v.vec with x, y, z -> { vec = (~-.1. *. x, ~-.1. *. y, ~-.1. *. z) }
 
-  (** [scale v s] scales vector [v] by [s].
-      Ex: [scale (1., 1., 1.) 2. = (2., 2., 2.)] *)
+  (** [scale v s] scales vector [v] by [s]. *)
   let scale (v : Vector.s) (s : float) : Vector.s =
     match v.vec with x, y, z -> { vec = (x *. s, y *. s, z *. s) }
 
+  (** [dot v1 v2] returns the dot product between vectors [v1] and [v2]. *)
   let dot (v1 : Vector.s) (v2 : Vector.s) : float =
     match (v1.vec, v2.vec) with
     | (x1, y1, z1), (x2, y2, z2) -> (x1 *. x2) +. (y1 *. y2) +. (z1 *. z2)
 
+  (** [cross v1 v2] returns the cross product between vectors [v1] and [v2]. *)
   let cross (v1 : Vector.s) (v2 : Vector.s) : Vector.s =
     match (v1.vec, v2.vec) with
     | (ax, ay, az), (bx, by, bz) ->
@@ -67,11 +65,11 @@ module VectorMath = struct
               (ax *. by) -. (ay *. bx) );
         }
 
+  (** [magnitude v] returns the magnitude of vector [v]. *)
   let magnitude (v : Vector.s) : float =
     match v.vec with x, y, z -> sqrt ((x ** 2.) +. (y ** 2.) +. (z ** 2.))
 
-  (* It's working but it's not? I tried to work some tricks around
-     it but it still doesn't work. Idk why *)
+  (** [normalize v] returns the unit vector of [v]. *)
   let normalize (v : Vector.s) : Vector.s = scale v (1. /. magnitude v)
 end
 

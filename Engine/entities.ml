@@ -10,6 +10,7 @@ module type E = sig
   val remove_active : id -> id
   val id_of_name : name -> id
   val get_all_active : unit -> id list
+  val reset : unit -> unit
 end
 
 module Entities : E = struct
@@ -51,4 +52,6 @@ module Entities : E = struct
         curr_id := !curr_id + 1;
         Hashtbl.replace entities name !curr_id;
         !curr_id
+
+  let reset () = Sparse_arraylist.clear active |> ignore
 end

@@ -4,8 +4,6 @@ open Makelevel
 open Helpers
 
 module Level1Data : LevelData = struct
-  (* X:850, Y:500 *)
-
   let level_id = "Level1"
 
   let init_targets () =

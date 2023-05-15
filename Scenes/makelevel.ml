@@ -58,6 +58,7 @@ module MakeLevel (L : LevelData) : Level = struct
       (Entities.id_of_name "Music" |> Audio.get_opt |> unwrap)
 
   let init () =
+    Entities.reset ();
     Components.reset ();
     L.init_targets ();
 

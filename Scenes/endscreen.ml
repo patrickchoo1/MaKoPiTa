@@ -7,10 +7,7 @@ open Raygui_helpers
 open Raygui
 
 module EndScreen : Level = struct
-  (** [from_json j] is the adventure that [j] represents. Requires: [j] is a valid
-    JSON adventure representation. *)
   let scene_id = "End Screen"
-
   let next_scene_id = ref "Start Screen"
   let msg = ref ""
   let win_msg = "Congrats! You Won!"
