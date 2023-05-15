@@ -1,6 +1,7 @@
 open Entities
 open Component
 open Raylib
+open Utility
 
 module System = struct
   module type Sig = sig
@@ -269,6 +270,97 @@ module RenderSprite = struct
       | [] -> ()
     in
     on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module MultiRenderHealth = struct
+  let components : (module Component.Sig) list =
+    [ (module Sprite); (module Multiposition); (module Health) ]
+
+  let on_update () =
+    let rec draw_multi_texture (spr : Sprite.s) (pos_list : Multiposition.s)
+        (n : int) =
+      if n < 1 then ();
+      match pos_list with
+      | pos :: t ->
+          draw_texture spr pos.x pos.y Color.white;
+          draw_multi_texture spr t (n - 1)
+      | [] -> ()
+    in
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match
+            (Sprite.get_opt id, Multiposition.get_opt id, Health.get_opt id)
+          with
+          | Some spr, Some pos_list, Some h ->
+              draw_multi_texture spr pos_list h.curr;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module RenderScore = struct
+  let components : (module Component.Sig) list =
+    [ (module Score); (module Position) ]
+
+  let offset_x = 98
+  let offset_y = 45
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match (Score.get_opt id, Position.get_opt id) with
+          | Some s, Some pos ->
+              draw_text (string_of_int s) (pos.x + offset_x) (pos.y + offset_y)
+                100 Color.white;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module Active = struct
+  include Timer
+
+  let target_timings = ref []
+  let init_timing timings = target_timings := timings
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Timing.get_opt id with
+          | Some time -> is_in_int id t time
+          | None -> failwith "No timing")
+      | [] -> ()
+    and is_in_int id t time =
+      match Timer.is_before_int time with
+      | true -> ()
+      | false -> (
+          match Timer.is_after_int time with
+          | true -> remove_from_active id
+          | false ->
+              set_to_active id;
+              on_update_aux t)
+    and remove_from_active id =
+      Entities.remove_active id |> ignore;
+      target_timings := match !target_timings with _ :: t -> t | [] -> []
+    and set_to_active id =
+      id |> In_n_Out.get_opt |> function
+      | Some In_to_Out -> ()
+      | _ -> Entities.set_active id |> ignore
+    in
+    on_update_aux !target_timings
 
   include (val System.create on_update : System.Sig)
 end

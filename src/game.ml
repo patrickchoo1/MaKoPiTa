@@ -3,6 +3,7 @@ open Engine
 open Entities
 open Component
 open Systems
+open System
 open Utility.Timer
 
 (**********************************************************************
@@ -22,7 +23,7 @@ let target_num = ref ~-1
 let make_target shape time =
   target_num := !target_num + 1;
   Entities.id_of_name ("Target" ^ string_of_int !target_num)
-  |> Shape.set shape |> Colors.set Color.black |> In_n_Out.set Out
+  |> Shape.set shape |> Colors.set Color.white |> In_n_Out.set Out
   |> Timing.set time |> ignore
 
 let make_polygon (vert_list : (int * int) list) : Shape.s =
@@ -54,11 +55,10 @@ module type Level = sig
 end
 
 module MakeLevel (L : LevelData) : Level = struct
-  let target_timings = ref []
   let unwrap a = match a with Some a -> a | None -> failwith "None"
 
   let setup () =
-    Raylib.init_window 800 450 "Test Game";
+    Raylib.init_window 1200 800 "Test Game";
     Raylib.set_target_fps 30;
     Raylib.init_audio_device ()
 
@@ -67,21 +67,49 @@ module MakeLevel (L : LevelData) : Level = struct
     | Some t1, Some t2 -> compare t1 t2
     | _ -> failwith "No timings provided"
 
-  let init () =
-    L.init_targets ();
-    (* Reserved names "Score", "Health", "Music" *)
-    Entities.id_of_name "Score" |> Score.set 0 |> Entities.set_active |> ignore;
-    (* Entities.id_of_name "Health"
-       |> Sprite.set (Sprite.load "./assets/Skewed Rectangle.png")
-       |> Health.set 10
-       |> Multiposition.set [ { x = 200; y = 200 } ]
-       |> ignore; *)
+  let init_health () =
+    let start = 25 in
+    let spacing = 27 in
+    Entities.id_of_name "Health"
+    |> Sprite.set (Sprite.load "./assets/HealthBar.png")
+    |> Health.set { curr = 10; max = 10 }
+    |> Multiposition.set
+         [
+           { x = start; y = start };
+           { x = start + (spacing * 1); y = start };
+           { x = start + (spacing * 2); y = start };
+           { x = start + (spacing * 3); y = start };
+           { x = start + (spacing * 4); y = start };
+           { x = start + (spacing * 5); y = start };
+           { x = start + (spacing * 6); y = start };
+           { x = start + (spacing * 7); y = start };
+           { x = start + (spacing * 8); y = start };
+           { x = start + (spacing * 9); y = start };
+         ]
+    |> Entities.set_active |> ignore
+
+  let init_score () =
+    Entities.id_of_name "Score"
+    |> Score.set 0
+    (* |> Sprite.set (Sprite.load "./assets/Score.png") *)
+    |> Position.set { x = 900; y = 600 }
+    |> Entities.set_active |> ignore
+
+  let init_audio () =
     Entities.id_of_name "Music"
     |> Audio.set (Audio.load L.music_path)
     |> Entities.set_active |> ignore;
-    target_timings := List.sort compare_timings (Timing.get_keys ());
     Raylib.play_music_stream
-      (Entities.id_of_name "Music" |> Audio.get_opt |> unwrap);
+      (Entities.id_of_name "Music" |> Audio.get_opt |> unwrap)
+
+  let init () =
+    L.init_targets ();
+
+    (* Reserved names "Score", "Health", "Music" *)
+    init_health ();
+    init_score ();
+    Active.init_timing (List.sort compare_timings (Timing.get_keys ()));
+    init_audio ();
     Timer.init_timer L.target_interval
 
   let rec loop () =
@@ -92,46 +120,16 @@ module MakeLevel (L : LevelData) : Level = struct
         Raylib.close_audio_device ();
         Raylib.close_window ()
     | false ->
-        (* print_list !target_timings; *)
-        (* print_list (Entities.get_all_active ()); *)
-        (* print_endline ""; *)
         print_endline (string_of_float (Timer.get_time ()));
         begin_drawing ();
-        clear_background Color.raywhite;
-        update_active ();
+        clear_background Color.black;
         Systems.update_all ();
         end_drawing ();
         loop ()
-
-  and update_active () =
-    let rec aux ids =
-      match ids with
-      | id :: t -> (
-          match Timing.get_opt id with
-          | Some time -> is_in_int id t time
-          | None -> failwith "No timing")
-      | [] -> ()
-    and is_in_int id t time =
-      match Timer.is_before_int time with
-      | true -> ()
-      | false -> (
-          match Timer.is_after_int time with
-          | true -> remove_from_active id
-          | false ->
-              set_to_active id;
-              aux t)
-    and remove_from_active id =
-      Entities.remove_active id |> ignore;
-      target_timings := match !target_timings with _ :: t -> t | [] -> []
-    and set_to_active id =
-      id |> In_n_Out.get_opt |> function
-      | Some In_to_Out -> ()
-      | _ -> Entities.set_active id |> ignore
-    in
-    aux !target_timings
 end
 
 module Level1Data : LevelData = struct
+  (* X:850, Y:500 *)
   let init_targets () =
     make_target (make_circle 30.0 (400.0, 225.0)) 0.009;
     make_target (make_circle 30.0 (400.0, 225.0)) 2.5;

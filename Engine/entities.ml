@@ -23,8 +23,7 @@ module Entities : E = struct
       | [] -> true
       | h :: t -> (
           let module Comp = (val h : Component.Sig) in
-          let x = Comp.get_opt id in
-          match x with None -> false | _ -> has_component id t)
+          match Comp.get_opt id with None -> false | _ -> has_component id t)
     in
     let rec is_active id acc =
       match id with

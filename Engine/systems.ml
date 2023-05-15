@@ -10,8 +10,11 @@ module Systems : S = struct
       (module PlayAudio);
       (module RenderShape);
       (module RenderSprite);
+      (module MultiRenderHealth);
+      (module RenderScore);
       (module ShapeCollisionDetection);
       (module AnimateTargets);
+      (module Active);
     |]
 
   let update_all () = Array.iter System.update systems
