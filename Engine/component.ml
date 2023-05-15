@@ -81,7 +81,7 @@ module Score = struct
 end
 
 module Health = struct
-  type s = { curr : int; max : int }
+  type s = { mutable curr : int; max : int }
 
   include (val Component.create () : Component.Sig with type t = s)
 end

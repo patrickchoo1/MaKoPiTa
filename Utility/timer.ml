@@ -4,6 +4,7 @@
 
 module type T = sig
   val init_timer : float -> unit
+  val get_interval : unit -> float
   val get_time : unit -> float
   val is_before_int : float -> bool
   val is_after_int : float -> bool
@@ -18,6 +19,7 @@ module Timer : T = struct
     interval := time_int;
     start_time := Unix.gettimeofday ()
 
+  let get_interval () = !interval
   let get_time () = Unix.gettimeofday () -. !start_time
   let is_before_int time = get_time () <= time -. !interval
   let is_after_int time = get_time () >= time +. !interval

@@ -3,6 +3,12 @@ open Utility
 open Engine.Component
 open Engine.System
 
+(*
+   - Compared timer to stopwatch
+   - PHysically tested gui from various condition (in-n-out, gjk)
+   - Print debugging
+*)
+
 (**********************************************************************
  * Pretty Printer Helper Functions
  **********************************************************************)
@@ -106,6 +112,12 @@ let sparse_arraylist_tests =
  * Vector Math Tests
  **********************************************************************)
 
+(** [vec_to_string v] convert a vector [v] to a string *)
+let vec_to_string (v : Vector.s) =
+  match v.vec with
+  | x, y, z ->
+      string_of_float x ^ ", " ^ string_of_float y ^ ", " ^ string_of_float z
+
 let vector_math_tests =
   [
     ( "zero_vec is origin" >:: fun _ ->
@@ -175,11 +187,9 @@ let vector_math_tests =
       assert_equal 3. (VectorMath.magnitude (VectorMath.make_vec 2. 1. 2.)) );
     ( "|(3, 4, 0)| is 5" >:: fun _ ->
       assert_equal 5. (VectorMath.magnitude (VectorMath.make_vec 3. 4. 0.)) );
-    (* THIS TEST CASE IS FAILING EVEN THOUGH IT'S "WORKING" *)
-    ( "normalize (3, 4, 0) is (0.6, 0.8, 0)" >:: fun _ ->
-      assert_equal
-        { Vector.vec = (0.6, 0.8, 0.) }
-        (VectorMath.normalize (VectorMath.make_vec 3. 4. 0.)) );
+    (let v1 : Vector.s = { Vector.vec = (0.6, 0.8, 0.) } in
+     let v2 : Vector.s = VectorMath.normalize (VectorMath.make_vec 3. 4. 0.) in
+     "normalize (3, 4, 0) is (0.6, 0.8, 0)" >:: fun _ -> assert (v1 = v2));
   ]
 
 (**********************************************************************

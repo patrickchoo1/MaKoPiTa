@@ -153,15 +153,30 @@ let rec print_list lst =
 
 module ShapeCollisionDetection = struct
   include GJK
+  include Timer
 
   let components : (module Component.Sig) list =
     [ (module Shape); (module In_n_Out) ]
 
   (* Increase the score by [x] *)
-  let incr_score x =
+  let incr_score id =
+    let score_interval () =
+      let interval = Timer.get_interval () in
+      let target_time = Timing.get_opt id |> unwrap in
+      let hit_time = Timer.get_time () in
+      let min_score = 1 in
+      let max_score = 6 in
+      let diff = abs_float (target_time -. hit_time) in
+      let proportion = 1. -. (diff /. interval) in
+      let score_range = max_score - min_score in
+      let score =
+        int_of_float (proportion *. float_of_int score_range) + min_score
+      in
+      max min_score (min max_score score)
+    in
     let score_id = Entities.id_of_name "Score" in
     match Score.get_opt score_id with
-    | Some s -> Score.set (s + x) score_id |> ignore
+    | Some s -> Score.set (s + score_interval ()) score_id |> ignore
     | None -> failwith "Uninitialized score"
 
   (* Detection for player collision in and out of target *)
@@ -174,11 +189,11 @@ module ShapeCollisionDetection = struct
     in
     match (state, collided, pressed) with
     | Out, false, true -> In_n_Out.set Out_to_In id
+    | In, true, true | Out_to_In, false, true -> id
     | Out_to_In, true, true -> In_n_Out.set In id
-    | In, true, true -> id
-    | In, false, true ->
+    | In, false, false | In, false, true ->
         In_n_Out.set In_to_Out id |> ignore;
-        incr_score 1;
+        incr_score id;
         Entities.remove_active id
     | In_to_Out, _, _ -> id
     | _ -> In_n_Out.set Out id
@@ -195,6 +210,9 @@ module ShapeCollisionDetection = struct
       | id :: t -> (
           match Shape.get_opt id with
           | Some s ->
+              (* Debugging colors *)
+              (* if gjk_collision s mouse then Colors.set Color.red id |> ignore
+                 else Colors.set Color.green id |> ignore; *)
               let _ =
                 in_n_out id (gjk_collision s mouse) (is_mouse_button_down Left)
               in
@@ -285,12 +303,13 @@ module MultiRenderHealth = struct
   let on_update () =
     let rec draw_multi_texture (spr : Sprite.s) (pos_list : Multiposition.s)
         (n : int) =
-      if n < 1 then ();
-      match pos_list with
-      | pos :: t ->
-          draw_texture spr pos.x pos.y Color.white;
-          draw_multi_texture spr t (n - 1)
-      | [] -> ()
+      if n < 1 then ()
+      else
+        match pos_list with
+        | pos :: t ->
+            draw_texture spr pos.x pos.y Color.white;
+            draw_multi_texture spr t (n - 1)
+        | [] -> ()
     in
     let rec on_update_aux ids =
       match ids with
@@ -352,7 +371,18 @@ module Active = struct
       | true -> ()
       | false -> (
           match Timer.is_after_int time with
-          | true -> remove_from_active id
+          | true ->
+              (* Health here? *)
+              (match In_n_Out.get_opt id with
+              | Some s ->
+                  (* print_endline "Here"; *)
+                  if s != In_to_Out then
+                    let h : Health.s =
+                      Entities.id_of_name "Health" |> Health.get_opt |> unwrap
+                    in
+                    h.curr <- h.curr - 1
+              | None -> ());
+              remove_from_active id
           | false ->
               set_to_active id;
               on_update_aux t)
@@ -406,6 +436,7 @@ module AnimateTargets = struct
           | Some (Circle c), Some time -> (
               match c.center.vec with
               | x, y, _ ->
+                  (* Change to blue after *)
                   draw_circle (int_of_float x) (int_of_float y)
                     (curr_radius c.radius time)
                     Color.blue;

@@ -1,4 +1,3 @@
-open Game
+open Scenes.Scene_manager.Manager
 
-let () =
-  () |> Game.StartScreen.setup |> Game.StartScreen.init |> Game.StartScreen.loop
+let () = start ()
