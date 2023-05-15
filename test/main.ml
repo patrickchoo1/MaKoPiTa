@@ -3,11 +3,39 @@ open Utility
 open Engine.Component
 open Engine.System
 
-(*
-   - Compared timer to stopwatch
-   - PHysically tested gui from various condition (in-n-out, gjk)
-   - Print debugging
-*)
+(**********************************************************************
+ * Test Plan
+ * Overview: 
+ 
+  Automatic Testing: Sparse Sets, Vector Math, and GJK
+  
+    * Sprase Sets
+      - Tested main functionality (insert, delete, search, clear)
+    
+    * Vector Math
+      - Conducted black box testing on each of the Vector Math functions
+      - One or two unit test cases were implemented per function to test its 
+        correctness
+    
+    * GJK Collision
+      - Conducted black box testing on the GJK algorithm
+      - Tested the collision between Points, Circles, and Polygons 
+      - Primarily used Points to test edge cases (border, inside, and outside of
+        shape)
+      - Further tested Circles/Polygons collisions with each other
+      - Used basic Circles and Polygons, and a random (weird) Polygon to test
+      
+  Manual Testing: Rendering, Timing, Scene Transitions, Score & Health Tracking,
+    and Audio
+     
+    * Game Mechanics
+     - Compared game timer to external stopwatch
+     - Physically tested gui from various condition for collision detection,
+       and score & health tracking 
+     - Gameplay throughs with gameovers and wins
+     - Tried all permutations of scenes paths
+     - General print debugging
+  **********************************************************************)
 
 (**********************************************************************
  * Pretty Printer Helper Functions
@@ -112,7 +140,7 @@ let sparse_arraylist_tests =
  * Vector Math Tests
  **********************************************************************)
 
-(** [vec_to_string v] convert a vector [v] to a string *)
+(** [vec_to_string v] convert a vector [v] to a string in the form ["x, y, z"] *)
 let vec_to_string (v : Vector.s) =
   match v.vec with
   | x, y, z ->

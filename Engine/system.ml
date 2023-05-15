@@ -24,22 +24,32 @@ end
  **********************************************************************)
 
 module VectorMath = struct
+  (** [zero_vec] initiliazes the zero vector. *)
   let zero_vec : Vector.s = { vec = (0., 0., 0.) }
 
+  (** [make_vec x y z] creates a new vector in the form [(x, y, z)]. *)
   let make_vec (x : float) (y : float) (z : float) : Vector.s =
     { vec = (x, y, z) }
 
+  (** [add v1 v2] adds vector [v1] and vector [v2]. 
+      Ex: [add (1., 1., 1.) (1., 1., 1.) = (2., 2., 2.)]. *)
   let add (v1 : Vector.s) (v2 : Vector.s) : Vector.s =
     match (v1.vec, v2.vec) with
     | (x1, y1, z1), (x2, y2, z2) -> { vec = (x1 +. x2, y1 +. y2, z1 +. z2) }
 
+  (** [sub v1 v2] subtracts vector [v2] from vector [v1].
+      Ex: [sub (2., 1., 0.) (1., 1., 1.) = (1., 0., ~-.1.)]. *)
   let sub (v1 : Vector.s) (v2 : Vector.s) : Vector.s =
     match (v1.vec, v2.vec) with
     | (x1, y1, z1), (x2, y2, z2) -> { vec = (x1 -. x2, y1 -. y2, z1 -. z2) }
 
+  (** [neg v] makes vector [v] into [-v]. 
+      Ex: [neg (1., 1., 1.) = (~-.1., ~-.1., ~-.1.)]. *)
   let neg (v : Vector.s) : Vector.s =
     match v.vec with x, y, z -> { vec = (~-.1. *. x, ~-.1. *. y, ~-.1. *. z) }
 
+  (** [scale v s] scales vector [v] by [s].
+      Ex: [scale (1., 1., 1.) 2. = (2., 2., 2.)] *)
   let scale (v : Vector.s) (s : float) : Vector.s =
     match v.vec with x, y, z -> { vec = (x *. s, y *. s, z *. s) }
 

@@ -3,12 +3,14 @@ open Raylib
 open Engine
 open Entities
 open Component
-open Utility.Helpers
 open Raygui_helpers
 open Raygui
 
 module EndScreen : Level = struct
+  (** [from_json j] is the adventure that [j] represents. Requires: [j] is a valid
+    JSON adventure representation. *)
   let scene_id = "End Screen"
+
   let next_scene_id = ref "Start Screen"
   let msg = ref ""
   let win_msg = "Congrats! You Won!"
@@ -20,6 +22,8 @@ module EndScreen : Level = struct
   let setup () =
     Raylib.init_window 1200 800 "Ending Screen";
     Raylib.set_target_fps 30
+
+  let unwrap a = match a with Some a -> a | None -> failwith "None"
 
   let init () =
     let fh = Entities.id_of_name "Health" |> Health.get_opt |> unwrap in

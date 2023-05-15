@@ -2,16 +2,7 @@
  * Timer module below
  **********************************************************************)
 
-module type T = sig
-  val init_timer : float -> unit
-  val get_interval : unit -> float
-  val get_time : unit -> float
-  val is_before_int : float -> bool
-  val is_after_int : float -> bool
-  val percent_of_int : float -> float
-end
-
-module Timer : T = struct
+module Timer = struct
   let start_time = ref 0.0
   let interval = ref 0.0
 

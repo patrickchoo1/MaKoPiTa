@@ -83,14 +83,10 @@ module Level1Data : LevelData = struct
     make_target (make_circle 30.0 (80.0, 380.00)) 181.0;
     make_target (make_circle 30.0 (100.0, 350.00)) 183.5;
     make_target (make_circle 30.0 (400.0, 225.00)) 186.00;
-    make_target (make_circle 30.0 (400.0, 225.00)) 189.00;
-    (* Temporary targets *)
-    make_target (make_circle 30.0 (200.0, 225.0)) 192.00;
-    make_target (make_circle 30.0 (100.0, 325.0)) 195.00;
-    make_target (make_circle 30.0 (300.0, 425.0)) 198.00
+    make_target (make_circle 30.0 (400.0, 225.00)) 189.00
 
   let music_path = "music/plantasia.mp3"
-  let target_interval = 5.0
+  let target_interval = 2.0
 end
 
 module Level1 = MakeLevel (Level1Data)

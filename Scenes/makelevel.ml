@@ -15,7 +15,7 @@ module MakeLevel (L : LevelData) : Level = struct
 
   let setup () =
     Raylib.init_window 1200 800 "Test Game";
-    Raylib.set_target_fps 45;
+    Raylib.set_target_fps 60;
     Raylib.init_audio_device ()
 
   let compare_timings (id1 : id) (id2 : id) =
@@ -47,7 +47,6 @@ module MakeLevel (L : LevelData) : Level = struct
   let init_score () =
     Entities.id_of_name "Score"
     |> Score.set 0
-    (* |> Sprite.set (Sprite.load "./assets/Score.png") *)
     |> Position.set { x = 900; y = 600 }
     |> Entities.set_active |> ignore
 

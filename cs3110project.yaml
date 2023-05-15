@@ -1,0 +1,30 @@
+# Members of your group.
+group:
+  - name: Takuma Osaka
+    netid: to95
+  - name: Koji Kimura
+    netid: kjk227
+  - name: Patrick Choo
+    netid: pkc48
+  - name: Mika Finkman
+    netid: mf654
+# Your PM.
+pm:
+  name: Shuyu Cao
+  netid: ssc256
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "The Rhythm of Pakomita"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.coecis.cornell.edu/pkc48/CS3110-Final-Project"
+# If you have no demo screencast, replace the url string with an empty string ""
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project is an interactive rhythm game. With inspirations from successful 
+  games like fruit ninja, the goal of the game is to cut through targets with 
+  your mouse. Where the rhythm comes in is that you have to go through the 
+  targets correctly along with the beat of the music. Our game keeps track of 
+  points, health, and timing. There are currently two levels to our game that 
+  increase in difficulty. Each level has its own song that the player must track the beats of.

@@ -1,5 +1,5 @@
 type t
-(** The type of an sparse_arraylist *)
+(** The sparse_arraylist type *)
 
 val make : int -> t
 (** [make n] is an arraylist with initial capacity of n. *)

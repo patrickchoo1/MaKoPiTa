@@ -29,3 +29,9 @@ bisect-clean:
 
 loc:
 	cloc --by-file --include-lang=OCaml .
+
+doc:
+	dune build @doc
+
+opendoc: doc
+	@bash opendoc.sh	
