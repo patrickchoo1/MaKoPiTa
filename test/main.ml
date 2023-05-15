@@ -10,7 +10,9 @@ open Engine.System
   Automatic Testing: Sparse Sets, Vector Math, and GJK
   
     * Sprase Sets
-      - Tested main functionality (insert, delete, search, clear)
+      - Tested main functionality (insert, delete, search, clear) through glass
+        box, black box, and random methodologies
+        - Ex: Inserting edge cases, Inserting random numbers
     
     * Vector Math
       - Conducted black box testing on each of the Vector Math functions
