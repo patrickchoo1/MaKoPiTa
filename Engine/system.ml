@@ -1,6 +1,7 @@
 open Entities
 open Component
 open Raylib
+open Utility
 
 module System = struct
   module type Sig = sig
@@ -136,6 +137,16 @@ module GJK = struct
     loop simplex d
 end
 
+let unwrap a = match a with Some a -> a | None -> failwith "None"
+
+let rec print_list lst =
+  match lst with
+  | [] -> ()
+  | x :: xs ->
+      print_int x;
+      print_string " ";
+      print_list xs
+
 (**********************************************************************
  * Add systems below
  **********************************************************************)
@@ -155,20 +166,22 @@ module ShapeCollisionDetection = struct
 
   (* Detection for player collision in and out of target *)
   let in_n_out (id : id) (collided : bool) (pressed : bool) =
-    print_endline (string_of_bool collided);
+    (* print_endline (string_of_bool collided); *)
     let state =
       match In_n_Out.get_opt id with
       | Some s -> s
       | None -> failwith "No in n' out state"
     in
     match (state, collided, pressed) with
+    | Out, false, true -> In_n_Out.set Out_to_In id
     | Out_to_In, true, true -> In_n_Out.set In id
     | In, true, true -> id
     | In, false, true ->
+        In_n_Out.set In_to_Out id |> ignore;
         incr_score 1;
-        In_n_Out.set In_to_Out id
+        Entities.remove_active id
     | In_to_Out, _, _ -> id
-    | _ -> In_n_Out.set Out_to_In id
+    | _ -> In_n_Out.set Out id
 
   let on_update () =
     let mouse_pos : Vector.s =
@@ -228,6 +241,7 @@ module RenderShape = struct
         draw_polygon poly.verticies
 
   let on_update () =
+    (* print_list (Entities.get_active components); *)
     let rec on_update_aux ids =
       match ids with
       | id :: t -> (
@@ -257,6 +271,166 @@ module RenderSprite = struct
               draw_texture spr pos.x pos.y Color.white;
               on_update_aux t
           | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module MultiRenderHealth = struct
+  let components : (module Component.Sig) list =
+    [ (module Sprite); (module Multiposition); (module Health) ]
+
+  let on_update () =
+    let rec draw_multi_texture (spr : Sprite.s) (pos_list : Multiposition.s)
+        (n : int) =
+      if n < 1 then ();
+      match pos_list with
+      | pos :: t ->
+          draw_texture spr pos.x pos.y Color.white;
+          draw_multi_texture spr t (n - 1)
+      | [] -> ()
+    in
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match
+            (Sprite.get_opt id, Multiposition.get_opt id, Health.get_opt id)
+          with
+          | Some spr, Some pos_list, Some h ->
+              draw_multi_texture spr pos_list h.curr;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module RenderScore = struct
+  let components : (module Component.Sig) list =
+    [ (module Score); (module Position) ]
+
+  let offset_x = 98
+  let offset_y = 45
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match (Score.get_opt id, Position.get_opt id) with
+          | Some s, Some pos ->
+              draw_text (string_of_int s) (pos.x + offset_x) (pos.y + offset_y)
+                100 Color.white;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module Active = struct
+  include Timer
+
+  let target_timings = ref []
+  let init_timing timings = target_timings := timings
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Timing.get_opt id with
+          | Some time -> is_in_int id t time
+          | None -> failwith "No timing")
+      | [] -> ()
+    and is_in_int id t time =
+      match Timer.is_before_int time with
+      | true -> ()
+      | false -> (
+          match Timer.is_after_int time with
+          | true -> remove_from_active id
+          | false ->
+              set_to_active id;
+              on_update_aux t)
+    and remove_from_active id =
+      Entities.remove_active id |> ignore;
+      target_timings := match !target_timings with _ :: t -> t | [] -> []
+    and set_to_active id =
+      id |> In_n_Out.get_opt |> function
+      | Some In_to_Out -> ()
+      | _ -> Entities.set_active id |> ignore
+    in
+    on_update_aux !target_timings
+
+  include (val System.create on_update : System.Sig)
+end
+
+module PlayAudio = struct
+  let components : (module Component.Sig) list = [ (module Audio) ]
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Audio.get_opt id with
+          | Some audio ->
+              Raylib.update_music_stream audio;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module AnimateTargets = struct
+  include Utility.Timer
+
+  let components : (module Component.Sig) list =
+    [ (module Shape); (module Timing) ]
+
+  let on_update () =
+    let curr_radius radius target_time =
+      let percent = Timer.percent_of_int target_time in
+      radius *. if percent > 1. then 1. else percent
+    in
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match (Shape.get_opt id, Timing.get_opt id) with
+          | Some (Circle c), Some time -> (
+              match c.center.vec with
+              | x, y, _ ->
+                  draw_circle (int_of_float x) (int_of_float y)
+                    (curr_radius c.radius time)
+                    Color.blue;
+                  on_update_aux t)
+          | _ -> failwith "No circle/time")
+      | [] -> ()
+    in
+    on_update_aux (Entities.get_active components)
+
+  include (val System.create on_update : System.Sig)
+end
+
+module ScoreCounter = struct
+  let components : (module Component.Sig) list =
+    [ (module Position); (module Score); (module Sprite) ]
+
+  let on_update () =
+    let rec on_update_aux ids =
+      match ids with
+      | id :: t -> (
+          match Score.get_opt id with
+          | Some scr ->
+              draw_text "Score" 400 255 200 Color.black;
+              on_update_aux t
+          | _ -> failwith "No sprite/pos/score")
       | [] -> ()
     in
     on_update_aux (Entities.get_active components)

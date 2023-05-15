@@ -63,7 +63,7 @@ module Shape = struct
 end
 
 module In_n_Out = struct
-  type s = Out_to_In | In | In_to_Out
+  type s = Out | Out_to_In | In | In_to_Out
 
   include (val Component.create () : Component.Sig with type t = s)
 end
@@ -81,7 +81,7 @@ module Score = struct
 end
 
 module Health = struct
-  type s = int
+  type s = { curr : int; max : int }
 
   include (val Component.create () : Component.Sig with type t = s)
 end
@@ -97,6 +97,14 @@ module Sprite = struct
   type s = Raylib.Texture2D.t
 
   let load path = Raylib.load_texture path
+
+  include (val Component.create () : Component.Sig with type t = s)
+end
+
+module Audio = struct
+  type s = Raylib.Music.t
+
+  let load path = Raylib.load_music_stream path
 
   include (val Component.create () : Component.Sig with type t = s)
 end
