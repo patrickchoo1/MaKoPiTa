@@ -4,7 +4,3 @@ Patrick Choo pkc48
 Koji Kimura kjk227
 Mika Finkman mf654
 Takuma Osaka to95
-# MaKoPiTa
-# MaKoPiTa
-# MaKoPiTa
-# MaKoPiTa
